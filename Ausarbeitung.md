@@ -23,41 +23,133 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 
 #### Bewertungen
 
-**Must-Have Requirements**
+### 3.1 Must-have
 
-| Nr. | Requirement | Note | Begründung |
-| ---- | ---- | ---- | ---- |
-| 3.1.1 a | Plätze für Zeitpunkt und Dauer reservieren | 5 | "einen oder mehrere Plätze" ist unklar (Gruppe?). Keine Grenzen für die Dauer. |
-| 3.1.1 b | System prüft freie Plätze | 6 | Klar und testbar. Die Pufferzeit ist aber nicht berücksichtigt (steht bei Maybe). |
-| 3.1.1 c | Name, Tel., E-Mail, Zahlungsart angeben | 7 | Passt genau zur Angabe. Zahlungsart ist hier Must, "Zahlung" aber Maybe. |
-| 3.1.2 | QR-Code erstellen und schicken | 6 | Gut, aber "schicken" ist offen (E-Mail? App?). |
-| 3.1.3 | Mit QR-Code vorbestellen | 5 | Keine Frist, obwohl der Koch "rechtzeitig" planen soll. |
-| 3.1.4 a | Kellner:in scannt QR-Code | 7 | Klar und testbar. |
-| 3.1.4 b | Gast bekommt Platz zugewiesen | 6 | Offen: Was passiert bei Verspätung oder wenn der Platz noch belegt ist? |
-| 3.1.5 | Essen und Getränke werden serviert | 4 | Sehr vage. Wer, wann, wie wird das geprüft? |
-| 3.1.6 a | Gast beendet Besuch, Platz frei | 7 | Klar, passt zur Angabe. |
-| 3.1.6 b | Kellner:in beendet Besuch | 7 | Klar, passt zur Angabe. |
-| 3.1.7 a | Gast kann stornieren | 6 | Offen: Was passiert mit Vorbestellung und bereits Bezahltem? |
-| 3.1.7 b | Bis 1 h kostenlos, danach 10 € | 7 | Zahlen sind testbar. Wie die 10 € verrechnet werden, steht nirgends. |
-| 3.1.8 | Manager verwaltet Speisen, Getränke, Plätze | 4 | "Verwalten" ist vage (anlegen? ändern? löschen?) und drei Dinge in einem. |
+#### 3.1.1 Reservieren
+- Der Gast kann einen oder mehrere Plätze für einen bestimmten Zeitpunkt und eine bestimmte Dauer reservieren.
 
-**Maybe Requirements**
-| Nr. | Requirement | Note | Begründung |
-| ---- | ---- | ---- | ---- |
-| 3.2.1 | Zahlung (online im Voraus, bar beim Check-in, beim Beenden) | 4 | Drei verschiedene Abläufe in einem Requirement (nicht atomar). "Bezahlung wird im QR-Code bestätigt" ist unklar. Widerspricht teilweise 3.1.1 c, wo die Zahlungsart schon Must ist. Bar-Kassieren durch Kellner:in steht nur bei den Stakeholdern. |
-| 3.2.2 | Feedback nach dem Besuch | 4 | Zu vage: Sterne, Text, Pflicht oder freiwillig? Nicht testbar. |
-| 3.2.3 | Nachbestellen bis Ende des Besuchs | 6 | Klar verständlich und testbar. Fehlt: Wie weiß der Koch davon, und gilt eine Frist? |
-| 3.2.4 | Termin bis 2 h vorher verschieben | 7 | Zahlen sind testbar, Rückfall auf Storno ist klar. Offen: Gilt die Pufferzeit? Kostet Verschieben etwas? Unterschied zu Storno-Grenze (1 h) sollte begründet werden. |
-| 3.2.5 | Warnung nach 2 h Besuchsdauer | 6 | Gut testbar (2 h). "aufmerksam gemacht" ist offen (Push? Anzeige im System?). Widerspricht evtl. der frei wählbaren Dauer aus 3.1.1 a. |
-| 3.2.6 | Absence-Gebühr 10 € | 5 | Es fehlt, ab wann "kein Check-in" gilt (z. B. 15 min nach Termin?). Nicht klar, wie die Gebühr eingezogen wird, wenn nicht online bezahlt wurde. |
-| 3.2.7 | Pufferzeit 30 Minuten | 7 | Klar, atomar und testbar. Sollte aber Must sein, weil 3.1.1 b davon abhängt. |
+  *5/9 Punkte*
 
-**Not necessary Requirements**
+- Das System prüft, ob im gewünschten Zeitraum genug Plätze frei sind.
 
-| Nr. | Requirement | Note | Begründung |
-| ---- | ---- | ---- | ---- |
-| 3.3.1 | Gruppenreservierung | 4 | Vier Dinge in einem (Reservieren, Benachrichtigen, eigene QR-Codes, Einzelbestellung). Widerspruch: Scope sagt "Gruppen erst später", aber 3.1.1 a erlaubt schon "mehrere Plätze". Maximale Gruppengröße fehlt. |
-| 3.3.2 | Gruppen-Gebühren und Teilstorno | 3 | Schwach und teils widersprüchlich: "z. B." bei Zeiten und Prozentwerten ist nicht testbar. Die Lücke zwischen "kurz vor dem Termin" und "letzte 15 Minuten" ist nicht definiert. Absence-Gebühr 10 € "auch wenn die ganze Gruppe nicht kommt" kollidiert mit den 20 € bei Gruppenstorno. Sehr viele Entscheidungen in einem Block. |
+  *6/9 Punkte*
+
+- Der Gast gibt Name, Telefonnummer, E-Mail und Zahlungsart (Kreditkarte, PayPal oder Cash) an.
+
+  *7/9 Punkte*
+
+#### 3.1.2 QR-Code
+- Wenn die Reservierung klappt, erstellt das System einen QR-Code und schickt ihn dem Gast.
+
+  *6/9 Punkte*
+
+#### 3.1.3 Vorbestellen
+- Der Gast kann mit dem QR-Code Speisen und Getränke vorbestellen.
+
+  *5/9 Punkte*
+
+#### 3.1.4 Check-in und Platzzuweisung
+- Die Kellner:in scannt den QR-Code beim Check-in.
+
+  *7/9 Punkte*
+
+- Der Gast bekommt seinen reservierten Platz zugewiesen.
+
+  *6/9 Punkte*
+
+#### 3.1.5 Servieren
+- Die vorbestellten Speisen und Getränke werden serviert.
+
+  *4/9 Punkte*
+
+#### 3.1.6 Besuch beenden, Platz freigeben
+- Der Gast kann seinen Besuch selbst beenden (Kontextmenü im QR-Code). Danach ist der Platz wieder frei.
+
+  *7/9 Punkte*
+
+- Der Kellner kann den Besuch beenden und den Platz freigeben, wenn sie merkt, dass der Gast gegangen ist.
+
+  *7/9 Punkte*
+
+#### 3.1.7 Stornieren
+- Der Gast kann seine Reservierung stornieren.
+
+  *6/9 Punkte*
+
+- Bis 1 Stunde vor dem Termin ist das kostenlos, danach kostet es 10 €.
+
+  *7/9 Punkte*
+
+#### 3.1.8 Verwaltung durch Manager:in
+- Der Manager kann Speisen, Getränke und Plätze im System verwalten.
+
+  *4/9 Punkte*
+
+### 3.2 Maybe
+
+#### 3.2.1 Zahlung 
+
+- Der Gast kann im Voraus online bezahlen (Kreditkarte oder PayPal). Die Bezahlung wird im QR-Code bestätigt.
+- Der Gast kann beim Check-in bar bezahlen.
+- Beim Beenden des Besuchs kann der Gast online bezahlen oder bar beim Kellner.
+
+  *4/9 Punkte (gesamt)*
+
+#### 3.2.2 Feedback 
+
+- Nach dem Besuch kann der Gast online Feedback geben.
+
+  *4/9 Punkte*
+
+#### 3.2.3 Nachbuchung 
+
+- Der Gast kann bis zum Ende des Besuchs noch Speisen und Getränke nachbestellen, z. B. einen Salat oder ein weiteres Getränk.
+
+  *6/9 Punkte*
+
+#### 3.2.4 Terminverschiebung 
+
+- Der Gast kann den Termin bis 2 Stunden vorher verschieben, wenn dann noch genug Plätze frei sind.
+- Sind keine Plätze frei, kann er nur stornieren.
+
+  *7/9 Punkte (gesamt)*
+
+#### 3.2.5 Timeout-Warnung
+
+- Wenn ein Besuch nach 2 Stunden nicht beendet ist, wird der Kellner vom System darauf aufmerksam gemacht.
+
+  *6/9 Punkte*
+
+#### 3.2.6 Absence-Gebühr 
+
+- Wenn der Gast nicht erscheint (kein Check-in), bekommt er eine Gebühr von 10 € verrechnet.
+
+  *5/9 Punkte*
+
+#### 3.2.7 Pufferzeit 
+
+- Zwischen zwei Reservierungen gibt es eine Pufferzeit von 30 Minuten, damit der Platz geräumt und gesäubert werden kann.
+
+  *7/9 Punkte*
+
+### 3.3 Not necessary
+
+#### 3.3.1 Gruppenreservierung
+- Eine Person kann für eine Gruppe reservieren, z. B. für 10 Personen an einem Tisch.
+- Die Person bekommt einen QR-Code und kann über das Kontextmenü die anderen Gäste benachrichtigen.
+- Jeder weitere Gast bekommt seinen eigenen QR-Code.
+- Jeder Gast kann mit seinem Code selbst Speisen und Getränke vorbestellen und bezahlen.
+
+  *4/9 Punkte (gesamt)*
+
+#### 3.3.2 Gruppen-Gebühren und Teilstorno
+- Wird eine Gruppenreservierung zu spät storniert, kostet das 20 €.
+- Kommt ein Gast der Gruppe nicht zum Check-in, bekommt er eine Absence-Gebühr von 10 €. Das gilt auch, wenn die ganze Gruppe nicht kommt.
+- Jeder Gast der Gruppe kann bis 1 Stunde vorher kostenlos stornieren.
+- Danach, bis kurz vor dem Termin (z. B. 30 Minuten), kostet es 10 € pro Person.
+- In den letzten 15 Minuten und danach fällt eine Gebühr von z. B. 75 % des Preises an.
+
+  *3/9 Punkte (gesamt)*
 
 #### Bewertung der übrigen Abschnitte
 
@@ -79,118 +171,173 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 
 ## Neu hinzugefügte Requirements und User Stories
 
-In diesem Abschnitt befinden sich alle neu hizugefügenten Requirements. Eingeteilt in funktional (FR) und nicht-funktional (NFR) Requirements.
-
 ### Neue funktionale Requirements
 
-| ID | Priorität | Requirement | Begründung / Lücke |
-| ---- | ---- | ---- | ---- |
-| FR-01 | Must | Der Gast kann eine Reservierung für max. 2 Stunden und mind. 30 Minuten buchen. Die Reservierung muss mindestens 30 Minuten im Voraus erfolgen. | Behebt "keine Grenzen für die Dauer" (3.1.1 a). |
-| FR-02 | Must | Das System bestätigt die Reservierung per E-Mail an den Gast und sendet den QR-Code als Bild im Anhang. | Konkretisiert "schicken" in 3.1.2. |
-| FR-03 | Must | Vorbestellungen sind bis 60 Minuten vor dem Termin möglich. | Behebt fehlende Frist in 3.1.3, damit der Koch planen kann. |
-| FR-04 | Must | Der Koch sieht alle Vorbestellungen für den Tag, sortiert nach Termin. | Koch hatte bisher kein Requirement. |
-| FR-05 | Must | Der Koch kann eine Speise als "fertig" markieren, die Kellner:in sieht den Status. | Macht "Servieren" (3.1.5) prüfbar. |
-| FR-06 | Must | Die Kellner:in kann eine Speise als "serviert" markieren. | Macht 3.1.5 testbar (wer, wann). |
-| FR-07 | Must | Erscheint der Gast mehr als 15 Minuten nach Terminbeginn nicht zum Check-in, verfällt die Reservierung, und die Plätze werden freigegeben. | Fehlende Verspätungsregel (3.1.4 b, 3.2.6). |
-| FR-08 | Must | Der Manager kann Speisen, Getränke und Plätze jeweils anlegen, ändern und deaktivieren. | Teilt das vage "verwalten" (3.1.8) in konkrete Funktionen auf. |
-| FR-09 | Must | Der Gast sieht vor der Bestellung die Speisekarte mit Preisen und Allergenen. | Fehlt komplett, in der Gastronomie rechtlich relevant. |
-| FR-10 | Must | Bei Storno wird die Vorbestellung automatisch mitstorniert, bereits online Bezahltes wird zurückerstattet (abzüglich einer eventuellen Gebühr). | Klärt offene Frage aus 3.1.7 a. |
-| FR-11 | Should | Die Kellner:in kann Barzahlung im System als "bezahlt" verbuchen. | Cash wird bei Stakeholdern genannt, aber nirgends gefordert. |
-| FR-12 | Should | Die Kellner:in sieht eine Übersicht aller Plätze mit Status (frei, reserviert, belegt, Pufferzeit). | Unterstützt Platzzuweisung und Bufferzeit. |
-| FR-13 | Could | Der Manager sieht eine Auslastungsübersicht (Anzahl Reservierungen und Gäste pro Tag und Stunde). | Stakeholder-Ziel "gut ausgelastet" hat bisher keine Funktion. |
-| FR-14 | Could | Der Gast sieht eine Liste seiner aktuellen und vergangenen Reservierungen. | Nötig zum Stornieren und Verschieben. |
+#### R04 Speisekarte (Must-have)
+- Der Gast kann die Speisekarte mit Preisen und verfügbaren Speisen sehen.
+
+  *Fehlt bisher, obwohl der Gast Essen vorbestellen kann.*
+
+#### R06 Küchenansicht (Must-have)
+- Der Koch sieht alle Vorbestellungen mit Menge, Gast und Ankunftszeit.
+- Stornierte Bestellungen werden nicht mehr als offen angezeigt.
+
+  *Der Koch kommt bei den Stakeholdern vor, hat aber kein eigenes Requirement.*
+
+#### R08 Platzübersicht (Must-have)
+- Die Kellner:in kann für einen bestimmten Zeitpunkt sehen, welche Plätze frei, reserviert oder belegt sind.
+- Die Übersicht wird beim Check-in, beim Stornieren und beim Beenden des Besuchs aktualisiert.
+
+  *Die Platzübersicht für das Personal fehlt.*
+
+#### R09 Barzahlung erfassen (Maybe)
+- Die Kellner:in kann eine Barzahlung mit Betrag und Zeitpunkt im System eintragen.
+- Der offene Betrag wird angepasst. Dieselbe Zahlung darf nicht doppelt erfasst werden.
+
+  *Barzahlung ist bereits vorgesehen, aber nicht, wie sie im System erfasst wird.*
+
+#### R11 Stornierung (Must-have)
+- Wenn der Gast seine Reservierung storniert, wird auch seine Vorbestellung storniert und der QR-Code ungültig.
+
+  *Diese Folgen einer Stornierung wurden nicht beschrieben.*
+
+#### R14 Rollen und Berechtigungen (Must-have)
+- Das Personal muss sich anmelden.
+- Kellner:in, Koch und Manager können nur die Funktionen ihrer eigenen Rolle verwenden. Das System prüft die Berechtigung bei jedem geschützten Aufruf.
+- Der Gast kann nur seine eigene Reservierung sehen.
+
+  *Die Rollen sind beschrieben, aber die Anmeldung und die Berechtigungen fehlen.*
 
 ### Neue nicht-funktionale Requirements
 
-| ID | Kategorie | Requirement |
-| ---- | ---- | ---- |
-| NFR-01 | Performance | Die Verfügbarkeitsprüfung bei der Reservierung antwortet in höchstens 3 Sekunden. |
-| NFR-02 | Usability | Ein Gast kann eine Reservierung in höchstens 5 Schritten und unter 2 Minuten abschließen. |
-| NFR-03 | Sicherheit | Jeder QR-Code ist eindeutig, nicht erratbar und nach Besuchsende ungültig. |
-| NFR-04 | Datenschutz | Personenbezogene Daten (Name, Telefon, E-Mail) werden DSGVO-konform gespeichert und nach 12 Monaten gelöscht. |
-| NFR-05 | Zahlungssicherheit | Kreditkartendaten werden nicht im System gespeichert, die Abwicklung läuft über einen externen Zahlungsanbieter. |
-| NFR-06 | Verfügbarkeit | Das System ist während der Öffnungszeiten (Mittagspause) zu mindestens 99 % verfügbar. |
-| NFR-07 | Kompatibilität | Die App läuft auf aktuellen Versionen von Android und iOS (alternativ als Web-App in gängigen Browsern). |
-| NFR-08 | Zuverlässigkeit | Zwei Gäste können nie denselben Platz im selben Zeitraum reservieren (keine Doppelbuchung, auch bei gleichzeitigen Anfragen). |
+#### R15 Datenerhalt (Must-have)
+- Reservierungen, Bestellungen und Zahlungen bleiben auch nach einem normalen Neustart gespeichert.
+
+#### R16a Datenschutz (Must-have)
+- Der Gast kann keine Daten von fremden Reservierungen einsehen. Das Personal hat nur Zugriff auf die Daten, für die es berechtigt ist.
+
+#### R16d QR-Sicherheit (Must-have)
+- Die Zugriffscodes werden zufällig erzeugt (Vorschlag: mindestens 128 Bit Zufall).
+- Im QR-Code stehen keine direkt lesbaren Kontaktdaten. Gesperrte Codes werden vom System abgelehnt.
+
+#### R17b Smartphone-Bedienung (Must-have)
+- Der Gast kann am Handy reservieren und seine Reservierung aufrufen.
+- Vorschlag für den Test: Bei einer Bildschirmbreite von 360 Pixeln sind alle wichtigen Funktionen ohne seitliches Scrollen erreichbar.
+
+#### R39a Reservierungsdauer (Maybe)
+- Der Gast soll eine Reservierung in weniger als 2 Minuten abschließen können. Gemessen wird vom Öffnen des Formulars bis zur Bestätigung.
+
+#### R39b Check-in-Reaktionszeit (Maybe)
+- Nach dem Scannen und Erkennen des QR-Codes sollen die Daten innerhalb von 2 Sekunden angezeigt werden.
+
+Die Testbedingungen und die beiden Zeitwerte müssen noch festgelegt bzw. bestätigt werden.
+
+### Technische Sicherheitsvorgaben
+
+#### R16b Passwörter (Must-have)
+- Passwörter werden gehasht gespeichert und nicht im Klartext.
+
+#### R16c Verbindung (Must-have)
+- Die App verwendet bei der Bereitstellung HTTPS.
+
+#### R16e Kreditkartendaten (Maybe)
+- Wenn die Kreditkartenzahlung umgesetzt wird, dürfen keine Kreditkartendaten im eigenen System gespeichert werden.
+
+Die Zahlungsfunktionen bleiben bei Maybe, wie im ursprünglichen Requirements-Dokument. Wenn eine Zahlungsfunktion umgesetzt wird, müssen auch die dazugehörigen Sicherheitsvorgaben erfüllt werden.
 
 ### Änderungsvorschläge für bestehende Requirements
 
-- **3.2.7 Pufferzeit** von Maybe auf **Must** setzen (3.1.1 b hängt davon ab).
-- **3.1.1 a** auf "einen Platz" einschränken, "mehrere Plätze" in 3.3.1 (Gruppenreservierung) belassen, damit der Scope-Widerspruch verschwindet.
-- **3.2.1 Zahlung** in drei einzelne Requirements aufteilen (Online-Vorauszahlung, Barzahlung beim Check-in, Zahlung beim Beenden).
-- **3.3.2** Zahlen und Zeitgrenzen festlegen (kein "z. B."), Tabelle der Gebühren erstellen.
-- Eindeutige IDs für alle Requirements (z. B. `REQ-3.1.1-a`) und einheitliche Schreibweise (Kellner:in).
-- Fehlendes Kapitel 4 ergänzen oder Nummerierung korrigieren.
+- 3.1.1: Bei der normalen Reservierung nur einen Platz erlauben, da Gruppenreservierungen erst später kommen sollen. Doppelbuchungen müssen auch bei gleichzeitigen Anfragen verhindert werden (R02).
+- 3.1.2, 3.1.4 und 3.1.6: Ungültige QR-Codes und doppelte Check-ins verhindern. Nach dem Besuch darf der QR-Code nicht mehr verwendet werden (R03, R07, R10).
+- 3.1.3: Festlegen, bis wann der Gast vorbestellen kann.
+- 3.1.6 und 3.2.1: Klären, was beim Beenden des Besuchs passiert, wenn noch etwas zu bezahlen ist (R10, R34).
+- 3.1.7: Bei Onlinezahlung festlegen, wie das Geld abzüglich der Gebühren zurückerstattet wird. Doppelte Rückerstattungen verhindern (R26).
+- 3.2.1: Die Zahlung in drei Requirements aufteilen (online im Voraus, bar beim Check-in und beim Beenden des Besuchs).
+- 3.2.6: Festlegen, ab wann ein Gast als nicht erschienen gilt.
+- 3.2.7: Die Pufferzeit von Maybe auf Must-have setzen, damit sie bei der Reservierung berücksichtigt wird.
+- 3.3.2: Die Zeiten und Gebühren genau festlegen und in einer Tabelle zusammenfassen.
+- Allen Requirements eine eindeutige ID geben und die Bezeichnungen der Rollen vereinheitlichen.
+- Die Nummerierung korrigieren, da Kapitel 4 fehlt.
 
 ### Neue User Stories
 
-Format: *Als [Rolle] möchte ich [Funktion], damit [Nutzen].* Mit Akzeptanzkriterien (AK).
- 
-**US-01 [NEU] Reservieren** (zu 3.1.1, FR-01)
-Als Gast möchte ich einen Platz für meine Mittagspause reservieren, damit ich nicht nach einem freien Tisch suchen muss.
-- AK: Ich wähle Datum, Uhrzeit und Dauer (30 bis 120 Minuten).
-- AK: Ist kein Platz frei, zeigt das System freie Alternativzeiten an.
-- AK: Nach Abschluss erhalte ich eine Bestätigung mit QR-Code.
+#### US04 Speisekarte (R04)
+Als Gast möchte ich die Speisekarte mit Preisen sehen, damit ich mein Essen auswählen kann.
 
-**US-02 [NEU] Vorbestellen** (zu 3.1.3, FR-03)
-Als Gast möchte ich Essen und Getränke vorbestellen, damit ich sofort nach dem Hinsetzen essen kann.
-- AK: Vorbestellen ist bis 60 Minuten vor dem Termin möglich.
-- AK: Ich sehe Preise und Allergene und die Gesamtsumme.
+Akzeptanzkriterien:
+- Die aktuellen Preise und die Verfügbarkeit werden angezeigt.
+- Nicht verfügbare Speisen können nicht bestellt werden.
 
-**US-03 [NEU] Bestellungen sehen** (zu FR-04)
-Als Koch möchte ich alle Vorbestellungen nach Uhrzeit sortiert sehen, damit ich die Zubereitung rechtzeitig planen kann.
-- AK: Neue Bestellungen erscheinen sofort in der Liste.
-- AK: Stornierte Bestellungen verschwinden aus der Liste.
+#### US06 Küchenansicht (R06)
+Als Koch möchte ich alle Vorbestellungen sehen, damit ich weiß, was ich wann vorbereiten muss.
 
-**US-04 [NEU] Speise fertig melden** (zu FR-05)
-Als Koch möchte ich eine Speise als fertig markieren, damit die Kellner:in sie sofort servieren kann.
-- AK: Die Kellner:in sieht den Status "fertig" in der Übersicht.
+Akzeptanzkriterien:
+- Der Koch sieht die Speisen, Mengen, Gäste und Ankunftszeiten.
+- Stornierte Bestellungen werden nicht mehr als offen angezeigt.
 
-**US-05 [NEU] Check-in** (zu 3.1.4)
-Als Kellner:in möchte ich den QR-Code scannen und dem Gast einen Platz zuweisen, damit der Check-in in wenigen Sekunden erledigt ist.
-- AK: Bei gültigem Code sehe ich Name, Platz und Bestellung.
-- AK: Bei ungültigem, abgelaufenem oder bereits genutztem Code zeigt das System eine Fehlermeldung.
+#### US08 Platzübersicht (R08)
+Als Kellner:in möchte ich die Platzbelegung sehen, damit ich weiß, welche Plätze frei sind.
 
-**US-06 [NEU] Servieren** (zu 3.1.5, FR-06)
-Als Kellner:in möchte ich sehen, welche Bestellung an welchen Platz gehört, damit ich sie richtig serviere.
-- AK: Ich kann jede Position als "serviert" markieren.
+Akzeptanzkriterien:
+- Die Plätze werden für den ausgewählten Zeitpunkt als frei, reserviert oder belegt angezeigt.
+- Änderungen werden in der Übersicht übernommen.
 
-**US-07 [NEU] Besuch beenden** (zu 3.1.6)
-Als Gast möchte ich meinen Besuch selbst beenden, damit ich nicht auf die Kellner:in warten muss.
-- AK: Nach dem Beenden ist der Platz im System sofort als "Pufferzeit" markiert und nach 30 Minuten wieder frei.
+#### US09 Barzahlung (R09)
+Als Kellner:in möchte ich Barzahlungen eintragen, damit ich sehe, wie viel der Gast noch bezahlen muss.
 
-**US-08 [NEU] Stornieren** (zu 3.1.7, FR-10)
-Als Gast möchte ich meine Reservierung stornieren, falls sich meine Pläne ändern.
-- AK: Bis 60 Minuten vor Termin ist Storno kostenlos, danach werden 10 € verrechnet. Das System zeigt mir die Gebühr vor der Bestätigung.
-- AK: Meine Vorbestellung wird mitstorniert, bereits Bezahltes wird zurückerstattet.
+Akzeptanzkriterien:
+- Wenn von 30 € offenen Kosten 20 € bezahlt werden, bleiben 10 € offen.
+- Dieselbe Zahlung darf nicht zweimal eingetragen werden.
+- Beträge von 0 € oder weniger werden abgelehnt.
 
-**US-09 [NEU] Verwalten** (zu 3.1.8, FR-08)
-Als Manager möchte ich Speisen, Getränke und Plätze anlegen, ändern und deaktivieren, damit die Speisekarte und die Platzliste immer aktuell sind.
-- AK: Deaktivierte Speisen können nicht mehr bestellt werden, bestehende Bestellungen bleiben gültig.
-- AK: Deaktivierte Plätze werden bei neuen Reservierungen nicht mehr vergeben.
+#### US11 Stornierung (R11)
+Als Gast möchte ich meine Reservierung stornieren können, damit mein Platz wieder frei wird.
 
-**US-10 [NEU] Auslastung** (zu FR-13)
-Als Manager möchte ich die Auslastung pro Tag und Stunde sehen, damit ich Personal und Einkauf besser planen kann.
- 
-**US-11 [NEU] Barzahlung** (zu 3.2.1, FR-11)
-Als Kellner:in möchte ich eine Barzahlung im System verbuchen, damit der Gast als bezahlt gilt.
- 
-**US-12 [NEU] Nachbestellen** (zu 3.2.3)
-Als Gast möchte ich während des Besuchs noch etwas nachbestellen, damit ich nicht aufstehen und anstehen muss.
-- AK: Die Nachbestellung erscheint beim Koch und wird der Rechnung hinzugefügt.
+Akzeptanzkriterien:
+- Eine Reservierung kann vor dem Check-in storniert werden.
+- Die Vorbestellung wird storniert, der Platz freigegeben und der QR-Code gesperrt.
+- Nach dem Check-in kann die Reservierung nicht mehr auf diese Weise storniert werden.
 
-**US-13 [NEU] Verschieben** (zu 3.2.4)
-Als Gast möchte ich meinen Termin verschieben, wenn meine Pause länger oder kürzer wird, damit ich nicht stornieren muss.
-- AK: Verschieben ist bis 2 Stunden vorher möglich, wenn im neuen Zeitraum ein Platz frei ist.
+#### US14 Rollen (R14)
+Als Mitarbeiter möchte ich mich anmelden können, damit ich die Funktionen meiner Rolle verwenden kann.
 
-**US-14 [NEU] Timeout-Warnung** (zu 3.2.5)
-Als Kellner:in möchte ich benachrichtigt werden, wenn ein Besuch die reservierte Dauer überschreitet, damit ich den Platz rechtzeitig für den nächsten Gast vorbereiten kann.
- 
-**US-15 [NEU] Feedback** (zu 3.2.2)
-Als Gast möchte ich nach dem Besuch eine Bewertung von 1 bis 5 Sternen und optional einen Kommentar abgeben, damit das Restaurant sich verbessern kann.
- 
+Akzeptanzkriterien:
+- Das Personal muss angemeldet sein.
+- Auch bei einem direkten Aufruf einer Funktion wird die Berechtigung geprüft.
+- Gäste können nur ihre eigene Reservierung sehen.
+
+#### US15 Datenerhalt (R15)
+Als Mitarbeiter möchte ich nach einem Neustart noch auf meine gespeicherten Daten zugreifen können, damit ich weiterarbeiten kann.
+
+Akzeptanzkriterium:
+- Reservierungen, Bestellungen und Zahlungen sind nach einem normalen Neustart noch vorhanden.
+
+#### US16 Sicherheit (R16a–e)
+Als Gast möchte ich, dass meine Daten geschützt sind, damit andere nicht darauf zugreifen können.
+
+Akzeptanzkriterien:
+- Fremde Reservierungen können nicht aufgerufen werden.
+- Passwörter werden gehasht gespeichert und die Verbindung verwendet HTTPS.
+- QR-Zugriffscodes werden zufällig erzeugt.
+- Bei Kreditkartenzahlung werden keine Kreditkartendaten im eigenen System gespeichert.
+
+#### US17 Smartphone-Bedienung (R17b)
+Als Gast möchte ich am Handy reservieren können, damit ich auch unterwegs einen Platz buchen kann.
+
+Akzeptanzkriterium:
+- Reservieren und Aufrufen der Reservierung sind am Handy möglich.
+
+#### US39 Geschwindigkeit (R39a, R39b)
+Als Nutzer möchte ich schnell reservieren und einchecken können, damit ich in der Mittagspause weniger Zeit verliere.
+
+Akzeptanzkriterien (Vorschlag):
+- Eine Reservierung dauert weniger als 2 Minuten.
+- Die Daten werden nach der QR-Code-Erkennung innerhalb von 2 Sekunden angezeigt.
+
+Die Testbedingungen müssen noch festgelegt werden.
+
 ---
 
 ### Ergebnis
- 
-Das Requirements-Dokument von Gruppe 1 ist inhaltlich gut und deckt den Grundablauf ab (**5 von 9**). Mit den genannten Änderungen (eindeutige IDs, atomare Requirements, genaue Zahlen, Koch-Sicht, nicht-funktionale Anforderungen und User Stories) wäre eine Bewertung von **7 bis 8 von 9** erreichbar.
+
+Das ursprüngliche Requirements-Dokument deckt den wichtigsten Ablauf ab. Es fehlen aber noch einige Funktionen für das Personal und Anforderungen an die Sicherheit. Außerdem sind manche Requirements zu ungenau. Deshalb wurde das Dokument mit 5 von 9 Punkten bewertet. Mit den Ergänzungen und Änderungen wären aus unserer Sicht 7 bis 8 Punkte möglich.
