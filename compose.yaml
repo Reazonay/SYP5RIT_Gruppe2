@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: restaurant
+      POSTGRES_PASSWORD: restaurant
+      POSTGRES_DB: restaurant
+    ports: ['127.0.0.1:5432:5432']
+    volumes: ['database:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U restaurant']
+      interval: 3s
+      retries: 20
+  mail:
+    image: axllent/mailpit:v1.24
+    ports: ['127.0.0.1:1025:1025', '127.0.0.1:8025:8025']
+volumes:
+  database:
