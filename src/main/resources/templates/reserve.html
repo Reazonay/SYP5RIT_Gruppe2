@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Reservieren')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main class="reserve-page">
+   <div th:replace="~{fragments :: messages}">
+   </div>
+   <div class="page-intro">
+    <div class="intro-line">
+     <span class="status positive">
+      Reservierung mit QR-Code
+     </span>
+     <span class="muted">
+      Direkt bei Tavola
+     </span>
+    </div>
+    <h1>
+     Platz reservieren
+    </h1>
+    <p>
+     Ein guter Abend beginnt mit einem Platz am Tisch.
+    </p>
+   </div>
+   <figure class="restaurant-image">
+    <img alt="Warmer Gastraum mit gedeckten Tischen" src="/assets/restaurant.jpg"/>
+    <figcaption>
+     <svg th:replace="~{fragments :: icon('table')}">
+     </svg>
+     Zeit für gutes Essen und gute Gesellschaft
+    </figcaption>
+   </figure>
+   <form action="/" id="party-form" method="get">
+   </form>
+   <form class="reservation-grid" method="post" th:action="@{/reserve}" th:object="${reservationForm}">
+    <div class="booking-fields">
+     <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}">
+      Bitte die markierten Eingaben prüfen.
+     </p>
+     <section class="panel">
+      <div class="section-heading">
+       <h2>
+        <svg th:replace="~{fragments :: icon('settings')}">
+        </svg>
+        Eckdaten
+       </h2>
+       <span>
+        Schritt 1 von 2
+       </span>
+      </div>
+      <label>
+       Beginn
+       <input data-booking-date="" required="" th:field="*{startsAt}" type="datetime-local"/>
+      </label>
+      <div class="row">
+       <label>
+        Dauer
+        <select data-booking-duration="" th:field="*{duration}">
+         <option th:each="minutes : ${ {30,60,90,120,180,240} }" th:text="${minutes + ' Minuten'}" th:value="${minutes}">
+         </option>
+        </select>
+       </label>
+       <label>
+        Personen
+        <input form="party-form" max="10" min="1" name="people" th:value="${reservationForm.people.size()}" type="number"/>
+       </label>
+      </div>
+      <div class="party-action">
+       <span class="muted">
+        Personenzahl zuerst wählen.
+       </span>
+       <button class="compact" form="party-form">
+        Anzahl übernehmen
+       </button>
+      </div>
+     </section>
+     <section class="panel guest-fields" th:each="person,i : *{people}">
+      <div class="section-heading">
+       <h2 th:text="${i.index == 0 ? 'Ihre Kontaktdaten' : 'Gast ' + (i.index + 1)}">
+       </h2>
+       <span th:if="${i.index == 0}">
+        Schritt 2 von 2
+       </span>
+      </div>
+      <label>
+       Name
+       <input autocomplete="name" maxlength="120" placeholder="Vor- und Nachname" required="" th:field="*{people[__${i.index}__].name}"/>
+       <span class="error" th:errors="*{people[__${i.index}__].name}">
+       </span>
+      </label>
+      <label>
+       E-Mail
+       <input autocomplete="email" maxlength="254" placeholder="name@beispiel.at" required="" th:field="*{people[__${i.index}__].email}" type="email"/>
+       <span class="error" th:errors="*{people[__${i.index}__].email}">
+       </span>
+      </label>
+      <label>
+       Telefon
+       <input autocomplete="tel" maxlength="40" minlength="3" placeholder="+43 …" required="" th:field="*{people[__${i.index}__].phone}" type="tel"/>
+      </label>
+      <label>
+       Zahlungsart
+       <select th:field="*{people[__${i.index}__].method}">
+        <option value="cash">
+         Bar
+        </option>
+        <option value="card">
+         Kreditkarte
+        </option>
+        <option value="paypal">
+         PayPal
+        </option>
+       </select>
+      </label>
+     </section>
+    </div>
+    <aside class="panel booking-summary">
+     <div class="section-heading">
+      <h2>
+       <svg th:replace="~{fragments :: icon('check')}">
+       </svg>
+       Zusammenfassung
+      </h2>
+     </div>
+     <div class="summary-detail">
+      <svg th:replace="~{fragments :: icon('calendar')}">
+      </svg>
+      <div>
+       <strong data-booking-preview="">
+        Datum und Uhrzeit auswählen
+       </strong>
+       <p>
+        <span th:text="${reservationForm.people.size() + (reservationForm.people.size() == 1 ? ' Person' : ' Personen')}">
+        </span>
+        ·
+        <span data-duration-preview="">
+         60 Minuten
+        </span>
+       </p>
+      </div>
+     </div>
+     <p class="help-text">
+      Jede Person erhält einen eigenen Reservierungslink per E-Mail. Check-in: 30 Minuten vor bis 15 Minuten nach Beginn.
+     </p>
+     <details>
+      <summary>
+       Storno- und Gebührenregeln
+      </summary>
+      <p>
+       Ab 60 Minuten vorher kostenlos. Einzelstorno danach 10 €. Gruppen-Gesamtstorno danach 20 €. Teilstorno danach 10 € pro Person, ab 15 Minuten vorher 75 % der persönlichen Vorbestellsumme. Nichterscheinen nach 15 Minuten: 10 € pro Person.
+      </p>
+     </details>
+     <button class="primary wide">
+      <svg th:replace="~{fragments :: icon('utensils')}">
+      </svg>
+      Verbindlich reservieren
+     </button>
+     <p class="fine-print">
+      Ihre Zahlungsart können Sie beim Bezahlen ändern.
+     </p>
+    </aside>
+   </form>
+   <div class="menu-preview">
+    <a class="text-link" href="/menu">
+     <svg th:replace="~{fragments :: icon('book')}">
+     </svg>
+     Vorab einen Blick in die Speisekarte werfen
+     <svg th:replace="~{fragments :: icon('arrow')}">
+     </svg>
+    </a>
+   </div>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>

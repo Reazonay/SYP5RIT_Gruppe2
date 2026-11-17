@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Besuch')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main class="visit-page">
+   <th:block th:if="${staffView}">
+    <nav th:replace="~{fragments :: staffNav}">
+    </nav>
+   </th:block>
+   <div th:replace="~{fragments :: messages}">
+   </div>
+   <h1 th:text="${staffView ? 'Besuch bearbeiten' : 'Mein Besuch'}">
+   </h1>
+   <details class="access-panel" th:open="${visit == null}">
+    <summary>
+     Reservierungszugang öffnen
+    </summary>
+    <form id="access-form" method="post" th:action="@{${staffView ? '/staff/access' : '/access'}}">
+     <label>
+      Reservierungszugang
+      <input autocomplete="off" name="access" placeholder="Zugriffscode oder Reservierungslink" required="" type="password"/>
+     </label>
+     <button>
+      Reservierung öffnen
+     </button>
+     <button id="scan-start" th:if="${staffView}" type="button">
+      QR-Code mit Kamera scannen
+     </button>
+     <p id="scan-message" role="status" th:if="${staffView}">
+     </p>
+     <video hidden="" id="scanner" muted="" playsinline="" th:if="${staffView}">
+     </video>
+    </form>
+   </details>
+   <div class="visit-grid" th:if="${visit != null}">
+    <section class="panel visit-overview">
+     <span class="status" th:classappend="${visit.status == 'checked_in' ? 'positive' : 'neutral'}" th:text="${@format.status(visit.status)}">
+     </span>
+     <h2 th:text="${visit.name}">
+     </h2>
+     <p class="visit-date">
+      <span th:text="${@format.date(visit.starts_at)}">
+      </span>
+      –
+      <span th:text="${@format.date(visit.ends_at)}">
+      </span>
+      <span th:if="${visit.status == 'checked_in' || visit.status == 'ended'}" th:text="${' · ' + visit.seat_label}">
+      </span>
+     </p>
+     <div class="actions">
+      <a th:href="@{${base}}">
+       Aktualisieren
+      </a>
+      <form data-confirm="Reservierung gemäß Gebührenregeln stornieren?" method="post" th:action="@{${base + '/cancel'}}" th:if="${visit.status == 'reserved'}">
+       <button>
+        Stornieren
+       </button>
+      </form>
+      <form method="post" th:action="@{/staff/visit/check-in}" th:if="${staffView &amp;&amp; visit.status == 'reserved'}">
+       <button>
+        Einchecken
+       </button>
+      </form>
+      <form method="post" th:action="@{${base + '/finish'}}" th:if="${visit.status == 'checked_in'}">
+       <button th:text="${staffView ? 'Besuch beenden (offene Forderung bleibt)' : 'Besuch beenden'}">
+       </button>
+      </form>
+     </div>
+    </section>
+    <aside class="identification" th:if="${qr != null}">
+     <img alt="QR-Code für den Check-in" class="qr" th:if="${qr}" th:src="${qr}"/>
+     <div>
+      <h3>
+       Ihr persönlicher QR-Code
+      </h3>
+      <p>
+       Beim Check-in vorzeigen. Ihr Zugang zur Reservierung und zur Rechnung.
+      </p>
+     </div>
+    </aside>
+    <section class="panel bill-panel">
+     <a class="button primary wide" href="/menu" th:if="${!staffView &amp;&amp; visit.usable}">
+      Speisekarte aufrufen / Nachbestellen
+     </a>
+     <h2>
+      Rechnung
+     </h2>
+     <p>
+      Bestellungen:
+      <span th:text="${@format.money(visit.subtotal)}">
+      </span>
+      · Gebühren:
+      <span th:text="${@format.money(visit.fee)}">
+      </span>
+      · Bezahlt:
+      <span th:text="${@format.money(visit.paid)}">
+      </span>
+     </p>
+     <p class="bill-total">
+      <strong th:text="${(visit.due &lt; 0 ? 'Guthaben: ' : 'Offen: ') + @format.money(visit.due &lt; 0 ? -visit.due : visit.due)}">
+      </strong>
+     </p>
+     <form method="post" th:action="@{${base + '/pay'}}" th:if="${visit.due &gt; 0}">
+      <input name="requestKey" th:value="${requestKey}" type="hidden"/>
+      <label>
+       Betrag in Euro
+       <input min=".01" name="amount" required="" step=".01" th:value="${@format.decimal(visit.due)}" type="number"/>
+      </label>
+      <button class="primary" name="method" th:if="${staffView}" value="cash">
+       Barzahlung erfassen
+      </button>
+      <th:block th:unless="${staffView}">
+       <button class="primary" name="method" value="card">
+        Mit Kreditkarte zahlen
+       </button>
+       <button name="method" value="paypal">
+        Mit PayPal zahlen
+       </button>
+      </th:block>
+     </form>
+     <div class="payment" th:each="payment : ${visit.payments}">
+      <span th:text="${payment.method + ' · ' + @format.money(payment.amount) + ' · ' + @format.status(payment.status)}">
+      </span>
+      <span th:if="${payment.refunded &gt; 0}" th:text="${'Erstattet: ' + @format.money(payment.refunded)}">
+      </span>
+      <th:block th:if="${payment.status == 'pending'}">
+       <a th:href="${payment.checkout_url}" th:if="${payment.checkout_url != null}">
+        Zahlung fortsetzen
+       </a>
+       <form method="post" th:action="@{/visit/pay}" th:if="${payment.checkout_url == null &amp;&amp; !staffView}">
+        <input name="requestKey" th:value="${payment.request_key}" type="hidden"/>
+        <input name="method" th:value="${payment.method}" type="hidden"/>
+        <input name="amount" th:value="${@format.decimal(payment.amount)}" type="hidden"/>
+        <button>
+         Zahlungslink wiederherstellen
+        </button>
+       </form>
+       <form method="post" th:action="@{${base + '/payments/' + payment.id + '/check'}}">
+        <button>
+         Zahlungsstatus prüfen
+        </button>
+       </form>
+      </th:block>
+      <form method="post" th:action="@{${base + '/payments/' + payment.id + '/refund'}}" th:if="${visit.due &lt; 0 &amp;&amp; payment.status == 'paid' &amp;&amp; payment.refunded &lt; payment.amount}">
+       <button>
+        Erstattung anfordern
+       </button>
+      </form>
+     </div>
+    </section>
+    <section class="panel orders-panel">
+     <h2>
+      Bestellungen
+     </h2>
+     <ul class="order-list">
+      <li class="order-row" th:each="order : ${visit.orders}">
+       <div>
+        <strong th:text="${order.quantity + ' × ' + order.name}">
+        </strong>
+        <div>
+         <span class="status" th:classappend="${order.status == 'served' ? 'positive' : 'warning'}" th:text="${@format.status(order.status)}">
+         </span>
+        </div>
+       </div>
+       <span class="price" th:text="${@format.money(order.quantity * order.unit_price)}">
+       </span>
+      </li>
+     </ul>
+     <p class="help-text" th:if="${visit.orders.isEmpty()}">
+      Noch keine Bestellungen. Wählen Sie etwas aus unserer Speisekarte.
+     </p>
+    </section>
+    <th:block class="staff-menu" th:if="${staffView &amp;&amp; visit.usable}">
+     <section th:replace="~{fragments :: menu(${visit.usable},${base})}">
+     </section>
+    </th:block>
+    <form class="panel feedback-panel" method="post" th:action="@{/visit/feedback}" th:if="${visit.status == 'ended' &amp;&amp; !staffView}">
+     <h2>
+      Feedback
+     </h2>
+     <label>
+      Bewertung
+      <select name="rating">
+       <option th:each="n : ${ {1,2,3,4,5} }" th:selected="${n == 5}" th:text="${n + ' von 5'}" th:value="${n}">
+       </option>
+      </select>
+     </label>
+     <label>
+      Kommentar
+      <textarea maxlength="2000" name="comment"></textarea>
+     </label>
+     <button>
+      Feedback senden
+     </button>
+    </form>
+   </div>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>

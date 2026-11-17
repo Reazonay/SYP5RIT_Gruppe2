@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Verwaltung')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main class="manage-page">
+   <nav th:replace="~{fragments :: staffNav}">
+   </nav>
+   <div th:replace="~{fragments :: messages}">
+   </div>
+   <h1>
+    Verwaltung
+   </h1>
+   <section class="panel">
+    <h2>
+     Speisekarte verwalten
+    </h2>
+    <form method="post" th:action="@{/staff/manage/menu/{id}(id=${item.id})}" th:each="item : ${menu}">
+     <div class="row">
+      <label>
+       Name
+       <input maxlength="120" name="name" required="" th:value="${item.name}"/>
+      </label>
+      <label>
+       Preis in Euro
+       <input max="1000" min="0" name="price" required="" step=".01" th:value="${@format.decimal(item.price)}" type="number"/>
+      </label>
+      <label>
+       Art
+       <select name="category">
+        <option th:selected="${item.category == 'food'}" value="food">
+         Speise
+        </option>
+        <option th:selected="${item.category == 'drink'}" value="drink">
+         Getränk
+        </option>
+       </select>
+      </label>
+      <label>
+       Verfügbar
+       <input name="available" th:checked="${item.available}" type="checkbox" value="true"/>
+      </label>
+     </div>
+     <button>
+      Änderungen speichern
+     </button>
+    </form>
+    <h3>
+     Artikel hinzufügen
+    </h3>
+    <form method="post" th:action="@{/staff/manage/menu}">
+     <div class="row">
+      <label>
+       Name
+       <input maxlength="120" name="name" required=""/>
+      </label>
+      <label>
+       Preis in Euro
+       <input max="1000" min="0" name="price" required="" step=".01" type="number"/>
+      </label>
+      <label>
+       Art
+       <select name="category">
+        <option value="food">
+         Speise
+        </option>
+        <option value="drink">
+         Getränk
+        </option>
+       </select>
+      </label>
+     </div>
+     <button>
+      Artikel hinzufügen
+     </button>
+    </form>
+   </section>
+   <section class="panel">
+    <h2>
+     Plätze verwalten
+    </h2>
+    <ul>
+     <li th:each="seat : ${seats}">
+      <span th:text="${seat.label + ' · ' + seat.table_name}">
+      </span>
+      <form class="inline" method="post" th:action="@{/staff/manage/seats/{id}(id=${seat.id})}">
+       <input name="active" th:value="${!seat.active}" type="hidden"/>
+       <button th:text="${seat.active ? 'Deaktivieren' : 'Aktivieren'}">
+       </button>
+      </form>
+     </li>
+    </ul>
+    <form method="post" th:action="@{/staff/manage/seats}">
+     <div class="row">
+      <label>
+       Platzbezeichnung
+       <input maxlength="80" name="label" required=""/>
+      </label>
+      <label>
+       Tisch
+       <input maxlength="80" name="tableName" required=""/>
+      </label>
+     </div>
+     <button>
+      Platz hinzufügen
+     </button>
+    </form>
+   </section>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>

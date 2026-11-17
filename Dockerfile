@@ -1,19 +1,15 @@
-FROM node:24-bookworm-slim AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY package*.json ./
-COPY apps/api/package.json apps/api/package.json
-COPY apps/web/package.json apps/web/package.json
-RUN npm ci
-COPY . .
-RUN npm run build
-RUN npm prune --omit=dev
-FROM node:24-bookworm-slim
-ENV NODE_ENV=production PORT=3000
+COPY pom.xml pom.xml
+RUN mvn -B dependency:go-offline
+COPY src src
+RUN mvn -B -DskipTests package
+
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-COPY --from=build --chown=node:node /app/node_modules ./node_modules
-COPY --from=build --chown=node:node /app/apps ./apps
-COPY --from=build --chown=node:node /app/db ./db
-COPY --from=build --chown=node:node /app/package.json ./package.json
-USER node
+RUN useradd --system --uid 10001 restaurant
+COPY --from=build --chown=restaurant:restaurant /app/target/restaurant.jar app.jar
+ENV APP_PRODUCTION=true PORT=3000
+USER restaurant
 EXPOSE 3000
-CMD ["node", "apps/api/dist/main.js"]
+CMD ["java", "-jar", "app.jar"]

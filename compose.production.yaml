@@ -5,9 +5,9 @@ services:
       POSTGRES_USER: restaurant
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
       POSTGRES_DB: restaurant
-    volumes: ["database:/var/lib/postgresql/data"]
+    volumes: ['database:/var/lib/postgresql/data']
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U restaurant"]
+      test: ['CMD-SHELL', 'pg_isready -U restaurant']
       interval: 3s
       retries: 20
     restart: unless-stopped
@@ -15,7 +15,7 @@ services:
     build: .
     env_file: .env
     environment:
-      NODE_ENV: production
+      APP_PRODUCTION: 'true'
       DATABASE_URL: postgres://restaurant:${DB_PASSWORD}@db:5432/restaurant
     depends_on:
       db:
@@ -23,10 +23,10 @@ services:
     restart: unless-stopped
   proxy:
     image: caddy:2-alpine
-    ports: ["80:80", "443:443"]
+    ports: ['80:80', '443:443']
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST:?PUBLIC_HOST required}
-    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy:/data", "caddy_config:/config"]
+    volumes: ['./Caddyfile:/etc/caddy/Caddyfile:ro', 'caddy:/data', 'caddy_config:/config']
     depends_on: [app]
     restart: unless-stopped
 volumes:

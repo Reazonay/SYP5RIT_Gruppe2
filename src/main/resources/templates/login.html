@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Anmelden')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main class="login-page">
+   <div th:replace="~{fragments :: messages}">
+   </div>
+   <h1>
+    Personal anmelden
+   </h1>
+   <p class="help-text">
+    Ihr Zugang für Service, Küche und Verwaltung.
+   </p>
+   <form class="login" method="post" th:action="@{/staff/login}">
+    <label>
+     E-Mail
+     <input autocomplete="username" name="email" required="" type="email"/>
+    </label>
+    <label>
+     Passwort
+     <input autocomplete="current-password" name="password" required="" type="password"/>
+    </label>
+    <button class="primary">
+     Anmelden
+    </button>
+   </form>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>

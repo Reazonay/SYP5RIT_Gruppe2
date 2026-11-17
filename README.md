@@ -1,80 +1,105 @@
 # Restaurant-Reservierungen
 
-Web-Anwendung auf Grundlage von `Ausarbeitung.md`: Einzel- und Gruppenreservierung, persönliche QR-Codes, Vor- und Nachbestellungen, Küche, Check-in, Platzverwaltung, Barzahlung, Sandbox-Zahlungen, Gebühren, Rückerstattungen und Feedback.
+Eine Spring-Boot-Anwendung mit Spring MVC, Thymeleaf, Spring Security, JDBC und PostgreSQL. Oberfläche, Geschäftslogik, REST-API und Hintergrundaufgaben laufen gemeinsam in einem ausführbaren JAR.
 
-## Lokal starten
+## Starten
 
-Voraussetzungen: Node.js **24 oder neuer**, npm und Docker Compose. Die Anwendung bleibt in diesem Repository; es wurde kein externer Hosting-Dienst eingerichtet.
+Voraussetzungen: Java 21+, Maven 3.9+ und PostgreSQL. Für lokale PostgreSQL- und E-Mail-Testdienste liegt Docker Compose bei.
+
+Einmalig vorbereiten:
 
 ```bash
 cp .env.example .env
-# SEED_PASSWORD in .env durch ein eigenes Passwort mit mindestens 14 Zeichen ersetzen.
-npm ci
+# SEED_PASSWORD in .env durch ein eigenes Passwort ersetzen (14 Zeichen bis 72 UTF-8-Bytes).
 docker compose up -d
-npm run migrate -w apps/api
-npm run seed -w apps/api
-npm run dev:api
+bash scripts/mvn.sh -DskipTests package
 ```
 
-In einem zweiten Terminal:
+Erster Start mit Beispieldaten und Personalzugängen:
 
 ```bash
-npm run dev:web
+java -jar target/restaurant.jar --app.seed=true
 ```
 
-- Anwendung: http://localhost:5173
-- Lokale Test-E-Mails mit QR-Anhang: http://localhost:8025
-- Personal: `manager@restaurant.test`, `waiter@restaurant.test`, `cook@restaurant.test`; Passwort jeweils der beim erstmaligen Seed gesetzte Wert.
-- Seed legt 30 Plätze an drei Tischen und fünf Speisekarteneinträge an. Wiederholtes Ausführen überschreibt keine bestehenden Personalpasswörter.
-- Nur PostgreSQL benötigt ein dauerhaftes Volume. Ein normaler Anwendungsneustart verändert keine Buchungsdaten.
+Danach genügt:
+
+```bash
+java -jar target/restaurant.jar
+```
+
+**Anwendung: http://localhost:3000** · Lokale E-Mails: http://localhost:8025
+
+PostgreSQL muss beim Start erreichbar sein. Flyway richtet das Schema automatisch ein. Seed legt 30 Plätze an drei Tischen, fünf Speisekarteneinträge und die Konten `manager@restaurant.test`, `waiter@restaurant.test`, `cook@restaurant.test` an. Alle verwenden das beim ersten Seed gesetzte Passwort. Erneutes Seeden überschreibt bestehende Passwörter nicht.
+
+Alternativ in IntelliJ die `pom.xml` im Projektstamm öffnen und `RestaurantApplication` starten. Für Änderungen ohne vorherigen JAR-Bau: `bash scripts/mvn.sh spring-boot:run`. Die `.env` wird aus dem Arbeitsverzeichnis gelesen. Der Maven-Helfer speichert Abhängigkeiten im ignorierten Projektcache `.cache/maven`.
+
+## Bedienung
+
+- **Reservieren:** Personenzahl auswählen und „Anzahl übernehmen“, danach Zeitpunkt und Kontaktdaten eingeben. Jede Person erhält einen eigenen QR-Code per E-Mail.
+- **Mein Besuch:** QR-/Reservierungslink öffnen oder den Code eingeben; Bestellungen ansehen, bezahlen, stornieren oder Besuch beenden.
+- **Speisekarte:** Speisen und Getränke ansehen; mit geöffneter Reservierung direkt vor- oder nachbestellen.
+- **Gruppe:** Termin verschieben, Teilnahmezustände ansehen oder gesamte Reservierung stornieren.
+- **Personal:** Rollenabhängige Platzübersicht, Check-in, Rechnung, Küche und Verwaltung.
+
+Alle wesentlichen Abläufe sind normale HTML-Formulare und funktionieren ohne JavaScript. Die kleine Datei `site.js` unterstützt den Kamerascan, Bestätigungsdialoge und die Übernahme bestehender QR-Links mit URL-Fragment. Es gibt keinen separaten Frontend-Build oder Frontend-Server. Zeiten beziehen sich auf `APP_ZONE_ID` (standardmäßig `Europe/Vienna`).
+
+Gastzugänge bleiben in der Serversitzung; sie werden nicht als versteckte Zugriffscodes in jedes Formular eingebettet. Nach Ablauf der Sitzung oder einem Serverneustart kann derselbe E-Mail-Link erneut geöffnet werden. Buchungs- und Zahlungsdaten bleiben in PostgreSQL gespeichert.
 
 ## Zahlungen
 
-Barzahlungen werden ausschließlich von Kellner:innen oder Manager:innen bestätigt. Beträge werden intern in **ganzen Eurocent** geführt. Zahlungsart bei der Reservierung ist eine Präferenz; beim Bezahlen kann die Person eine andere unterstützte Methode wählen.
+Barzahlungen und Barauszahlungen bestätigt das Personal. Alle Beträge werden intern als ganze Eurocent gespeichert. Kreditkarte und PayPal laufen ausschließlich im Testbetrieb:
 
-Für Onlinezahlungen in `.env` setzen:
+- `STRIPE_SECRET_KEY`: Schlüssel mit Präfix `sk_test_`.
+- `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`: PayPal-Sandbox-Händlerkonto.
 
-- `STRIPE_SECRET_KEY`: Stripe-Schlüssel mit Präfix `sk_test_`; Live-Schlüssel werden abgelehnt.
-- `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`: Zugang eines PayPal-Sandbox-Händlerkontos.
+Checkout und Erstattung werden beim Anbieter durchgeführt. Die Rückleitungs-URL bestätigt keine Zahlung; der Server prüft Betrag, Währung und Anbieterstatus. Ausstehende Zahlungen werden regelmäßig und auf Wunsch manuell geprüft. Dauerhaft gespeicherte Auftragskennungen verhindern doppelte Buchungen bei Wiederholung nach Verbindungsfehlern.
 
-Die App öffnet den Checkout des Anbieters. Zahlungsstatus wird serverseitig anhand des Anbieters geprüft, niemals aus der Rückleitungs-URL übernommen. Der Hintergrundjob prüft ausstehende Zahlungen alle 15 Sekunden; zusätzlich gibt es „Zahlungsstatus prüfen“. Bei technischen Fehlern kann ein noch nicht erzeugter Zahlungslink mit derselben Auftragskennung wiederhergestellt werden.
+Nach Storno zeigt die Rechnung Gebühren oder Guthaben. Onlineerstattungen startet „Erstattung anfordern“; Barauszahlungen bestätigt das Personal. Gebühren von Barzahlern bleiben als offene Forderung bestehen, bis eine Zahlung erfasst wurde. Echte externe Sandbox-Checkouts benötigen eigene Testkonten und eine abschließende Anbieterprüfung.
 
-Nach Storno zeigt die Rechnung Gebühren beziehungsweise Guthaben. Onlineerstattungen werden über die Schaltfläche „Erstattung anfordern“ gestartet; Barauszahlungen bestätigt das Personal. Eine Reservierung mit mehreren Zahlungen kann entsprechend mehrere Teilerstattungen benötigen. Gebühren bei Barzahlern bleiben als Forderung bestehen, bis das Personal eine Zahlung erfasst.
-
-Anbieterzugänge sind nicht Bestandteil des Repositorys. Die echten Sandbox-Checkout-Oberflächen und tatsächliche externe Erstattungen müssen mit eigenen Testkonten abgenommen werden. Automatisierte Tests verwenden kontrollierte Anbieterantworten für PayPal und prüfen die Datenbankbuchungen.
-
-## Prüfen
+## Tests
 
 ```bash
-npm run build
-npm test
-# PostgreSQL muss laufen; jedes Skript erzeugt eine eigene Testdatenbank und löscht nur diese.
+# Regel-, QR- und Zahlungsanbieter-Vertragstests
+bash scripts/mvn.sh test
+
+# Echte PostgreSQL-, MVC-, Sicherheits-, E-Mail- und Migrationsprüfungen
 bash scripts/test-db.sh
-node node_modules/playwright/cli.js install chromium
+
+# Einmalig den Testbrowser installieren
+bash scripts/mvn.sh -q test-compile exec:java \
+  -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test \
+  '-Dexec.args=install chromium'
+
+# Vollständige Browserabläufe gegen das einzelne Spring-JAR
 bash scripts/test-browser.sh
+
+# Java-Formatierung prüfen
+bash scripts/mvn.sh spotless:check
 ```
 
-`npm test` führt ohne `RUN_DATABASE_TESTS=1` nur die Regeln aus und überspringt DB-/HTTP-Tests. `test-db.sh` aktiviert diese mit einer separaten Datenbank. Das Backend muss vor HTTP- und Browsertests gebaut sein. Browsertests verwenden die freien Ports 3000 und 5173; HTTP-Tests Port 43127.
-
-CI prüft Build, Test-Typen, Regeln, SQL-Constraints, HTTP-Berechtigungen und Browserabläufe auf PostgreSQL. Browsertests prüfen den Gastablauf bei 360 Pixel Breite sowie Gruppenreservierung und Gesamtstorno. Gemessene Benutzerzeiten unter realen Netzwerkbedingungen und Kamerascan mit physischen Smartphones sind eigene Abnahmeschritte.
+DB- und Browsertestskripte legen eigene temporäre Datenbanken an und löschen ausschließlich diese. PostgreSQL aus `compose.yaml` muss dafür laufen. Der Browsertest benötigt einen freien Port 3000 und beendet seinen Testserver selbst. Sämtliche Tests sind Java: JUnit, MockMvc, MockRestServiceServer und Playwright für Java. Die CI prüft dieselben Abläufe. Performance mit echten Testpersonen und Kamerascan auf physischen Smartphones sind separate Abnahmeschritte.
 
 ## Bereitstellung mit HTTPS
 
-`compose.production.yaml` ist eine eigenständige Konfiguration mit internem PostgreSQL, App und Caddy als HTTPS-Proxy. Vorher `.env` konfigurieren:
+`compose.production.yaml` enthält PostgreSQL, das Spring-JAR und Caddy als HTTPS-Proxy. In `.env` konfigurieren:
 
-- `PUBLIC_HOST`: Domain mit DNS-Eintrag auf den Server.
-- `PUBLIC_URL=https://...`: exakt der öffentliche Ursprung; wird auch für E-Mail-Links und CSRF-Prüfung verwendet.
-- `DB_PASSWORD`: langes, URL-taugliches Passwort, beispielsweise ausschließlich Hex-Zeichen.
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` und gegebenenfalls `SMTP_USER`, `SMTP_PASSWORD`: erreichbarer Mailserver; `localhost` bezeichnet innerhalb des Containers die App selbst.
+- `PUBLIC_HOST`: Domain mit passendem DNS-Eintrag.
+- `PUBLIC_URL=https://...`: öffentlicher Ursprung für Links und Zugriffsschutz.
+- `DB_PASSWORD`: langes, URL-taugliches Passwort, beispielsweise Hex-Zeichen.
+- SMTP-Zugang: `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, gegebenenfalls `SMTP_USER`, `SMTP_PASSWORD`.
 
 ```bash
 docker compose -f compose.production.yaml build
 docker compose -f compose.production.yaml up -d db
-docker compose -f compose.production.yaml run --rm app node apps/api/dist/migrate.js
-docker compose -f compose.production.yaml run --rm app node apps/api/dist/seed.js
+docker compose -f compose.production.yaml run --rm app java -jar app.jar \
+  --spring.main.web-application-type=none --app.jobs.enabled=false --app.command=seed
 docker compose -f compose.production.yaml up -d
 ```
 
-HTTPS-Zertifikate verwaltet Caddy. Sichere Session-Cookies werden im Produktionsmodus aktiviert. Datenbank-Backups sind über `pg_dump` unabhängig von App-Releases einzurichten; Änderungen am Schema benötigen neue Migrationen. Es wurde kein Produktionsserver bereitgestellt.
+Caddy verwaltet HTTPS-Zertifikate. Im Produktionsmodus werden sichere Cookies und SMTP-TLS verlangt. Für implizites SMTP-TLS `SMTP_SSL=true` setzen. Eine alte Datenbank mit `migrations.name=001_initial` wird bei Flyway-Version 1 übernommen; unbekannte bestehende Schemas werden nicht automatisch übernommen. Datenbank-Backups sind unabhängig von Releases mit `pg_dump` einzurichten. Es wurde kein Produktionsserver veröffentlicht.
 
-Architektur, Geschäftsregeln und Anforderungszuordnung: [docs/implementation.md](docs/implementation.md).
+Weitere Details: [Architektur und Geschäftsregeln](docs/implementation.md).
+
+## Gestaltung
+
+Die Oberfläche folgt den mobilen Tavola-Entwürfen aus `stitch_restaurant_reservierung_ui_redesign.zip`: Cremeflächen, Terrakotta-Akzente, Plus Jakarta Sans, Formularkarten und eine untere Navigation auf Smartphones. Auf größeren Bildschirmen wechseln Navigation und Formularaufteilung in ein breiteres Layout. Schrift und Restaurantbild werden lokal aus dem JAR ausgeliefert; es gibt keine CDN- oder Frontend-Build-Abhängigkeit. Die Schriftlizenz liegt unter `src/main/resources/static/assets/OFL-jakarta.txt`. Beispielbestände, Allergene und Servicefunktionen der Designvorlage werden nicht als echte Daten dargestellt.

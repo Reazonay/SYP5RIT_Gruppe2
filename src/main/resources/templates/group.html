@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Gruppe')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main class="group-page">
+   <div th:replace="~{fragments :: messages}">
+   </div>
+   <h1>
+    Gruppenverwaltung
+   </h1>
+   <form method="post" th:action="@{/access}">
+    <input name="kind" type="hidden" value="group"/>
+    <label>
+     Verwaltungszugang
+     <input autocomplete="off" name="access" placeholder="Zugriffscode oder Gruppenlink" required="" type="password"/>
+    </label>
+    <button>
+     Gruppe öffnen
+    </button>
+   </form>
+   <th:block th:if="${group != null}">
+    <p th:text="${@format.date(group.starts_at) + ' – ' + @format.date(group.ends_at)}">
+    </p>
+    <ul>
+     <li th:each="person : ${group.people}" th:text="${person.name + ' · ' + @format.status(person.status)}">
+     </li>
+    </ul>
+    <form method="post" th:action="@{/group/shift}">
+     <label>
+      Neuer Beginn
+      <input name="startsAt" required="" type="datetime-local"/>
+     </label>
+     <button>
+      Termin verschieben
+     </button>
+    </form>
+    <form data-confirm="Gesamte Reservierung gemäß Gebührenregeln stornieren?" method="post" th:action="@{/group/cancel}">
+     <button class="danger">
+      Gesamte Reservierung stornieren
+     </button>
+    </form>
+   </th:block>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>

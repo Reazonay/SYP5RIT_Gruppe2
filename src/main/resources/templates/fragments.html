@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:fragment="head(title)">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+  <meta content="no-referrer" name="referrer"/>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_parameter" th:content="${_csrf.parameterName}"/>
+  <title th:text="${title + ' · Tavola'}">
+   Tavola
+  </title>
+  <link rel="stylesheet" th:href="@{/site.css}"/>
+  <script defer="" th:src="@{/site.js}">
+  </script>
+  <meta http-equiv="refresh" th:content="${refreshSeconds}" th:if="${refreshSeconds != null}"/>
+ </head>
+ <body>
+  <svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" th:fragment="icon(name)" viewbox="0 0 24 24">
+   <use th:href="@{'/assets/icons.svg#' + ${name}}">
+   </use>
+  </svg>
+  <header class="app-header" th:fragment="header">
+   <div class="header-inner">
+    <a aria-label="Tavola Startseite" class="brand" href="/">
+     <span class="brand-mark">
+      <svg th:replace="~{fragments :: icon('utensils')}">
+      </svg>
+     </span>
+     <span>
+      Tavola
+      <span class="brand-caption">
+       Gastronomie
+      </span>
+     </span>
+    </a>
+    <div class="header-actions">
+     <a aria-label="Gruppe" class="icon-button" href="/group" title="Gruppenverwaltung">
+      <svg th:replace="~{fragments :: icon('group')}">
+      </svg>
+     </a>
+     <a aria-label="Personalzugang" class="profile-button" href="/staff">
+      <svg th:replace="~{fragments :: icon('person')}">
+      </svg>
+     </a>
+    </div>
+    <nav aria-label="Hauptnavigation" class="main-nav">
+     <a href="/" th:attr="aria-current=${pagePath == '/' ? 'page' : null}" th:classappend="${pagePath == '/' ? 'active' : ''}">
+      <svg th:replace="~{fragments :: icon('calendar')}">
+      </svg>
+      <span>
+       Reservieren
+      </span>
+     </a>
+     <a href="/visit" th:attr="aria-current=${pagePath == '/visit' ? 'page' : null}" th:classappend="${pagePath == '/visit' || pagePath == '/group' ? 'active' : ''}">
+      <svg th:replace="~{fragments :: icon('ticket')}">
+      </svg>
+      <span>
+       Mein Besuch
+      </span>
+     </a>
+     <a href="/menu" th:attr="aria-current=${pagePath == '/menu' ? 'page' : null}" th:classappend="${pagePath == '/menu' ? 'active' : ''}">
+      <svg th:replace="~{fragments :: icon('book')}">
+      </svg>
+      <span>
+       Speisekarte
+      </span>
+     </a>
+     <a href="/staff" th:attr="aria-current=${pagePath != null &amp;&amp; pagePath.startsWith('/staff') ? 'page' : null}" th:classappend="${pagePath != null &amp;&amp; pagePath.startsWith('/staff') ? 'active' : ''}">
+      <svg th:replace="~{fragments :: icon('person')}">
+      </svg>
+      <span>
+       Personal
+      </span>
+     </a>
+    </nav>
+   </div>
+  </header>
+  <div class="messages" th:fragment="messages">
+   <p class="notice" role="status" th:if="${message}" th:text="${message}">
+   </p>
+   <p class="error" role="alert" th:if="${error}" th:text="${error}">
+   </p>
+  </div>
+  <nav aria-label="Personalnavigation" class="subnav" th:fragment="staffNav" th:if="${staff != null}">
+   <a href="/staff/seats" th:classappend="${pagePath == '/staff/seats' ? 'active' : ''}" th:if="${staff.role != 'cook'}">
+    <svg th:replace="~{fragments :: icon('table')}">
+    </svg>
+    Plätze
+   </a>
+   <a href="/staff/visit" th:classappend="${pagePath == '/staff/visit' ? 'active' : ''}" th:if="${staff.role != 'cook'}">
+    <svg th:replace="~{fragments :: icon('qr')}">
+    </svg>
+    Check-in &amp; Rechnung
+   </a>
+   <a href="/staff/kitchen" th:classappend="${pagePath == '/staff/kitchen' ? 'active' : ''}">
+    <svg th:replace="~{fragments :: icon('kitchen')}">
+    </svg>
+    Bestellungen
+   </a>
+   <a href="/staff/manage" th:classappend="${pagePath == '/staff/manage' ? 'active' : ''}" th:if="${staff.role == 'manager'}">
+    <svg th:replace="~{fragments :: icon('settings')}">
+    </svg>
+    Verwaltung
+   </a>
+   <form method="post" th:action="@{/staff/logout}">
+    <button class="quiet">
+     Abmelden
+    </button>
+   </form>
+  </nav>
+  <footer class="app-footer" th:fragment="footer">
+   <span>
+    Tavola Gastronomie
+   </span>
+   <span>
+    Zeiten in Europe/Vienna · Zahlungen im Testbetrieb
+   </span>
+  </footer>
+  <section class="menu-section" th:fragment="menu(ordering,base)">
+   <h2>
+    Speisekarte
+   </h2>
+   <div class="category-nav">
+    <a href="#food">
+     Speisen
+    </a>
+    <a href="#drink">
+     Getränke
+    </a>
+   </div>
+   <div class="menu-category" th:each="category : ${ {'food','drink'} }" th:id="${category}">
+    <h3 th:text="${category == 'food' ? 'Speisen' : 'Getränke'}">
+    </h3>
+    <ul class="menu">
+     <li class="dish" th:classappend="${!item.available ? 'unavailable' : ''}" th:each="item : ${menu}" th:if="${item.category == category}">
+      <div class="dish-heading">
+       <strong th:text="${item.name}">
+       </strong>
+       <span class="price" th:text="${@format.money(item.price)}">
+       </span>
+      </div>
+      <div class="dish-actions">
+       <span class="status" th:classappend="${item.available ? 'positive' : 'neutral'}">
+        <svg th:replace="~{fragments :: icon('check')}">
+        </svg>
+        <span th:text="${item.available ? 'Verfügbar' : 'Nicht verfügbar'}">
+        </span>
+       </span>
+       <form class="inline order-form" method="post" th:action="@{${base + '/order'}}" th:if="${ordering}">
+        <input name="menuId" th:value="${item.id}" type="hidden"/>
+        <label class="quantity">
+         Menge
+         <input max="99" min="1" name="quantity" required="" type="number" value="1"/>
+        </label>
+        <button class="primary" th:disabled="${!item.available}">
+         Bestellen
+        </button>
+       </form>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <p class="empty-state" th:if="${menu.isEmpty()}">
+    Die Speisekarte wird gerade vorbereitet. Bitte versuchen Sie es später erneut.
+   </p>
+  </section>
+ </body>
+</html>

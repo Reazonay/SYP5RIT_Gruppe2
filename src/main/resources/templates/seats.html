@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Plätze')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main class="staff-page">
+   <nav th:replace="~{fragments :: staffNav}">
+   </nav>
+   <div th:replace="~{fragments :: messages}">
+   </div>
+   <div class="staff-intro">
+    <span>
+     Service &amp; Empfang
+    </span>
+    <span>
+     Tavola
+    </span>
+   </div>
+   <h1>
+    Platzübersicht
+   </h1>
+   <form action="/staff/seats" class="panel inline" method="get">
+    <label>
+     Zeitpunkt
+     <input name="at" required="" th:value="${at}" type="datetime-local"/>
+    </label>
+    <button>
+     Belegung anzeigen
+    </button>
+   </form>
+   <div class="seat-legend">
+    <span class="status positive" th:text="${'Frei · ' + seatCounts.free}">
+    </span>
+    <span class="status warning" th:text="${'Reserviert · ' + seatCounts.reserved}">
+    </span>
+    <span class="status neutral" th:text="${'Belegt · ' + seatCounts.occupied}">
+    </span>
+   </div>
+   <div class="seats">
+    <div class="seat" th:classappend="${seat.status}" th:each="seat : ${seats}">
+     <strong th:text="${seat.label}">
+     </strong>
+     <span th:text="${seat.table_name}">
+     </span>
+     <span th:text="${seat.active ? @format.status(seat.status) : 'Deaktiviert'}">
+     </span>
+    </div>
+   </div>
+   <h2>
+    Besuche
+   </h2>
+   <ul class="visits">
+    <li th:each="visit : ${visits}">
+     <strong th:text="${visit.name}">
+     </strong>
+     <span th:text="${' · ' + @format.date(visit.starts_at) + ' · ' + visit.label + ' · ' + @format.status(visit.status)}">
+     </span>
+     <strong class="error" th:if="${visit.overdue}">
+      · Seit über zwei Stunden aktiv
+     </strong>
+     <form data-confirm="Besuch beenden? Offene Forderungen bleiben bestehen." method="post" th:action="@{/staff/visits/{id}/finish(id=${visit.id})}" th:if="${visit.status == 'checked_in'}">
+      <button>
+       Besuch beenden
+      </button>
+     </form>
+    </li>
+   </ul>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>

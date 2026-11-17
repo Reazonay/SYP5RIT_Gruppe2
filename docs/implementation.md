@@ -2,13 +2,13 @@
 
 ## Architektur
 
-React-Ansichten verwenden dieselbe REST-API unter `/api`. NestJS trennt HTTP-Validierung und Rollenprüfung von Reservierungslogik und Zahlungsintegration. PostgreSQL ist die einzige Quelle für Belegung, Preise, Salden und Zustände. Es gibt keine Browser-Datenbank und keine simulierten erfolgreichen Zahlungen.
+Thymeleaf-Seiten werden von Spring MVC im selben Prozess wie die REST-API unter `/api` gerendert. Spring Boot mit Bean Validation und Spring Security trennt HTTP-Validierung und Rollenprüfung von Reservierungslogik und Zahlungsintegration. PostgreSQL ist die einzige Quelle für Belegung, Preise, Salden und Zustände. Es gibt keine Browser-Datenbank und keine simulierten erfolgreichen Zahlungen.
 
-- `apps/api/src/service.ts`: Buchungen, Gruppen, Zustände und Rechnungssalden.
-- `apps/api/src/payments.ts`: dauerhaft gespeicherte Zahlungs-/Erstattungsaufträge und Anbieteraufrufe.
-- `db/001_initial.sql`: Fremdschlüssel, Werteprüfungen, eindeutige Schlüssel und Ausschluss überlappender Platzbelegungen.
+- `ReservationService`: Buchungen, Gruppen, Zustände und Rechnungssalden.
+- `PaymentService` und `SandboxPaymentGateway`: dauerhaft gespeicherte Zahlungs-/Erstattungsaufträge und Anbieteraufrufe.
+- Flyway-Migration `src/main/resources/db/migration/V1__initial.sql`: Fremdschlüssel, Werteprüfungen, eindeutige Schlüssel und Ausschluss überlappender Platzbelegungen.
 
-Frontend: getrennte Seiten für Reservierung, eigenen Besuch, Gruppen und Personal; wiederverwendbare Speisekarte, Verwaltung und Scanner. Zod prüft sämtliche schreibenden Benutzereingaben serverseitig. SQL-Werte werden ausschließlich parametrisiert übergeben.
+Oberfläche: getrennte serverseitige Seiten für Reservierung, eigenen Besuch, Gruppen und Personal; wiederverwendbare Speisekarte, Verwaltung und Scanner. Java-Records mit Jakarta Bean Validation prüfen sämtliche schreibenden Benutzereingaben serverseitig. JDBC-Zugriffe verwenden Spring JdbcTemplate, Transaktionen Spring TransactionTemplate. SQL-Werte werden ausschließlich parametrisiert übergeben.
 
 ## Konsistenz und Sicherheit
 
@@ -16,9 +16,9 @@ Alle Änderungen an einer Teilnahme sperren zuerst die gemeinsame Buchung, dann 
 
 Zahlungsaufträge speichern vor dem externen Aufruf ihre UUID. Wiederholungen verwenden denselben Idempotenzschlüssel beim Anbieter. Zahlungsbetrag und Währung werden bei Bestätigung geprüft. Erstattungsaufträge werden ebenfalls vor dem Anbieteraufruf gespeichert; ein offener Erstattungsauftrag verhindert konkurrierende Erstattungen über andere Zahlungen derselben Teilnahme. Providerfehler führen nicht zu einer lokalen Erfolgsbuchung. Idempotenzgarantien der Anbieter haben zeitliche Grenzen; liegen Aufträge länger ungeklärt, müssen sie anhand der Anbietertransaktionen geprüft werden.
 
-Personalpasswörter: bcrypt mit Kostenfaktor 12. Sessions: zufällige, in der Datenbank nur gehasht gespeicherte Tokens, acht Stunden gültig, HttpOnly-/SameSite-Cookies. Jede Personalroute prüft ihre erlaubten Rollen. Browser-Schreibzugriffe müssen den konfigurierten Ursprung besitzen; Loginversuche werden begrenzt. Das Rate-Limit läuft pro App-Prozess. Die mitgelieferte Bereitstellung nutzt eine App-Instanz.
+Personalpasswörter: bcrypt mit Kostenfaktor 12. Sessions: zufällige, in der Datenbank nur gehasht gespeicherte Tokens, acht Stunden gültig, HttpOnly-/SameSite-Cookies. Jede Personalroute prüft ihre erlaubten Rollen. HTML-Formulare verwenden Spring-Security-CSRF-Tokens. Schreibende REST-Aufrufe prüfen den konfigurierten Ursprung; Loginversuche werden begrenzt. Das Rate-Limit läuft pro App-Prozess. Die mitgelieferte Bereitstellung nutzt eine App-Instanz.
 
-Gast- und Gruppenlinks enthalten 256 Bit Zufall, keine Kontaktdaten. Tokens stehen im URL-Fragment und werden in API-Anfragen über einen Header übermittelt. Gespeichert werden ausschließlich Hashes, außer in noch zu versendenden E-Mail-Nachrichten. Nach erfolgreicher Zustellung wird der Nachrichtentext in der Outbox entfernt. Ein Link ist ein Zugangsgeheimnis: Wer ihn besitzt, kann die zugehörige Reservierung verwalten. Gruppenverwaltung zeigt Namen und Teilnahmezustände, keine fremden Bestellungen oder Zahlungen.
+Gast- und Gruppenlinks enthalten 256 Bit Zufall, keine Kontaktdaten. Tokens stehen in QR-Links im URL-Fragment. Eine kleine Übergabe übernimmt sie per CSRF-geschütztem POST in die Serversitzung und entfernt das Fragment aus der Adresszeile. Die optional nutzbare REST-API empfängt Tokens weiterhin über einen Header. Gespeichert werden ausschließlich Hashes, außer in noch zu versendenden E-Mail-Nachrichten. Nach erfolgreicher Zustellung wird der Nachrichtentext in der Outbox entfernt. Ein Link ist ein Zugangsgeheimnis: Wer ihn besitzt, kann die zugehörige Reservierung verwalten. Gruppenverwaltung zeigt Namen und Teilnahmezustände, keine fremden Bestellungen oder Zahlungen.
 
 Beendete, stornierte und ausgebliebene Teilnahmen können weiterhin ihre Rechnung einsehen. Ihr QR-Code wird nicht mehr ausgegeben, Check-in und Bestellungen werden abgelehnt. Das ermöglicht Erstattungen, ohne einen abgeschlossenen Besuch erneut zu aktivieren.
 
@@ -85,3 +85,21 @@ Browser-Kamerascan verwendet die verfügbare BarcodeDetector-API. Unterstützt d
 Externe Sandbox-Zahlungen, reale SMTP-Zustellung und physischer Kamerascan brauchen eine abschließende Integration mit den dafür vorgesehenen Zugängen/Geräten. Lokale E-Mails gehen an Mailpit. Aufbewahrungs- und Löschfristen für personenbezogene Daten sind im Ausgangsdokument nicht festgelegt und werden hier nicht als rechtlich vollständig umgesetzt behauptet.
 
 Anbieterreferenzen: [Stripe Checkout](https://docs.stripe.com/payments/existing-customers?platform=web&ui=stripe-hosted), [PayPal Orders API](https://developer.paypal.com/api/rest/integration/orders-api), [PayPal-Erstattungen](https://developer.paypal.com/api/payments/v2/captures-refund).
+
+## Java-Tests und Datenbankübernahme
+
+`RulesTest` prüft Gebührenfristen, Check-in, Tokens und QR-Inhalt. `SandboxPaymentGatewayTest` prüft die tatsächlichen Stripe-/PayPal-HTTP-Verträge mit MockRestServiceServer. `RestaurantIntegrationTest` prüft PostgreSQL-Constraints, Transaktionen, Idempotenz, No-shows, Küche, E-Mails, Rechnung und Rollen über MockMvc. `LegacyMigrationTest` erzeugt eine alte Datenbank und prüft die verlustfreie Flyway-Übernahme. `BrowserTest` prüft die komplette Spring-Anwendung mit Playwright für Java. Datenbank- und Browsertests benötigen explizite Umgebungsvariablen und getrennte Testdatenbanken.
+
+Die SQL-Struktur und bisherigen API-Feldnamen bleiben erhalten. Flyway ersetzt den Node-Migrationsrunner. Spring übernimmt bestehende bcrypt-Hashes und gehashte Gast-/Personal-Sessions. JSON-POSTs antworten weiterhin mit 201; PATCH/GET mit 200. Der Rollenverstoß beim Bestellstatus antwortet jetzt korrekt mit 403. Java 21 ist die Build- und Laufzeitbasis; die lokale Prüfung erfolgt auf dem vorhandenen JDK 25.
+
+## Gemeinsamer Java-Start
+
+Das Maven-Projekt liegt im Projektstamm. `java -jar target/restaurant.jar` startet MVC-Seiten, statische CSS-/JavaScript-Dateien, REST-API und Hintergrundjobs gemeinsam auf Port 3000. Templates und Assets liegen unter `src/main/resources/templates` beziehungsweise `static` und werden ins JAR gepackt. `GuestPages` und `StaffPages` rufen dieselben Services wie die REST-Controller auf. Nach Änderungen verwenden Formulare das Post/Redirect/Get-Muster. Die Grundfunktionen benötigen kein JavaScript; der Browser nutzt es nur für Kamera, Bestätigung und Fragmentlinks.
+
+Gast- und Gruppenzugänge werden im serverseitigen `HttpSession`-Speicher gehalten. Personal verwendet weiterhin die gehashte Datenbank-Session. Beide Cookies sind HttpOnly und SameSite Strict; im Produktionsbetrieb zusätzlich Secure. HTML-POSTs benötigen einen CSRF-Token. Bei Neustart muss ein Gast seinen persönlichen Link erneut öffnen; gespeicherte Reservierungen und Rechnungen gehen dadurch nicht verloren.
+
+Referenzen: [Thymeleaf mit Spring MVC](https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html), [Spring-Security-CSRF](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html).
+
+## Tavola-Oberfläche
+
+Die Stitch-Vorlagen werden als Thymeleaf-Templates und lokale CSS-/SVG-/Schrift-/Bilddateien umgesetzt. `/menu` bietet die eigenständige Speise- und Getränkekarte. Anonyme Gäste sehen die Karte; Bestellformulare erscheinen nur bei einer offenen eigenen Reservierung. Bestellungen verwenden weiterhin den bestehenden Service und dessen Validierung. Desktop, Tablet und Smartphone verwenden dieselben Templates. Die untere mobile Navigation wird auf größeren Bildschirmen zur Kopfnavigation. Buchungs-, Gebühren- und Zahlungsregeln wurden durch die Gestaltung nicht verändert.

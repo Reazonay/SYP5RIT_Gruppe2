@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="~{fragments :: head('Anfrage prüfen')}">
+ </head>
+ <body>
+  <header th:replace="~{fragments :: header}">
+  </header>
+  <main>
+   <h1>
+    Anfrage konnte nicht abgeschlossen werden
+   </h1>
+   <p class="error" role="alert" th:text="${error}">
+   </p>
+   <a th:href="${back}">
+    Zurück zur Anwendung
+   </a>
+  </main>
+  <footer th:replace="~{fragments :: footer}">
+  </footer>
+ </body>
+</html>
