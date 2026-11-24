@@ -52,15 +52,17 @@
      </p>
      <div class="actions">
       <a th:href="@{${base}}">
+       <svg th:replace="~{fragments :: icon('refresh')}">
+       </svg>
        Aktualisieren
       </a>
       <form data-confirm="Reservierung gemäß Gebührenregeln stornieren?" method="post" th:action="@{${base + '/cancel'}}" th:if="${visit.status == 'reserved'}">
-       <button>
+       <button class="danger">
         Stornieren
        </button>
       </form>
       <form method="post" th:action="@{/staff/visit/check-in}" th:if="${staffView &amp;&amp; visit.status == 'reserved'}">
-       <button>
+       <button class="primary">
         Einchecken
        </button>
       </form>
@@ -192,7 +194,7 @@
       Kommentar
       <textarea maxlength="2000" name="comment"></textarea>
      </label>
-     <button>
+     <button class="primary">
       Feedback senden
      </button>
     </form>

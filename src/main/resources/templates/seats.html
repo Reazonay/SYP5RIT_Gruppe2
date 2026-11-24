@@ -21,12 +21,12 @@
    <h1>
     Platzübersicht
    </h1>
-   <form action="/staff/seats" class="panel inline" method="get">
+   <form action="/staff/seats" class="panel seat-filter" method="get">
     <label>
      Zeitpunkt
      <input name="at" required="" th:value="${at}" type="datetime-local"/>
     </label>
-    <button>
+    <button class="primary">
      Belegung anzeigen
     </button>
    </form>
@@ -39,7 +39,7 @@
     </span>
    </div>
    <div class="seats">
-    <div class="seat" th:classappend="${seat.status}" th:each="seat : ${seats}">
+    <div class="seat" th:classappend="${seat.active ? seat.status : 'inactive'}" th:each="seat : ${seats}">
      <strong th:text="${seat.label}">
      </strong>
      <span th:text="${seat.table_name}">

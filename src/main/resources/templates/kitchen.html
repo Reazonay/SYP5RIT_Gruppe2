@@ -10,13 +10,17 @@
    </nav>
    <div th:replace="~{fragments :: messages}">
    </div>
-   <h1>
-    Offene Bestellungen
-   </h1>
-   <a href="/staff/kitchen">
-    Aktualisieren
-   </a>
-   <p th:if="${orders.isEmpty()}">
+   <div class="staff-toolbar">
+    <h1>
+     Offene Bestellungen
+    </h1>
+    <a class="button compact" href="/staff/kitchen">
+     <svg th:replace="~{fragments :: icon('refresh')}">
+     </svg>
+     Aktualisieren
+    </a>
+   </div>
+   <p class="empty-state" th:if="${orders.isEmpty()}">
     Keine offenen Bestellungen.
    </p>
    <ul class="kitchen">

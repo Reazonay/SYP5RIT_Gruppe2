@@ -38,9 +38,9 @@
         </option>
        </select>
       </label>
-      <label>
-       Verfügbar
+      <label class="checkbox-field">
        <input name="available" th:checked="${item.available}" type="checkbox" value="true"/>
+       Verfügbar
       </label>
      </div>
      <button>
@@ -72,7 +72,7 @@
        </select>
       </label>
      </div>
-     <button>
+     <button class="primary">
       Artikel hinzufügen
      </button>
     </form>
@@ -103,7 +103,7 @@
        <input maxlength="80" name="tableName" required=""/>
       </label>
      </div>
-     <button>
+     <button class="primary">
       Platz hinzufügen
      </button>
     </form>

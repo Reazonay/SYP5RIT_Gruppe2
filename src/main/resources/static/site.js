@@ -72,3 +72,29 @@ function updateBookingSummary() {
 bookingDate?.addEventListener('input', updateBookingSummary);
 bookingDuration?.addEventListener('change', updateBookingSummary);
 updateBookingSummary();
+
+// Progressive enhancement: subtle header elevation on scroll.
+const header = document.querySelector('.app-header');
+if (header) {
+  const syncHeader = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  syncHeader();
+  window.addEventListener('scroll', syncHeader, { passive: true });
+}
+
+// Progressive enhancement: keep active category tab synchronized on menu page.
+const categoryNav = document.querySelector('.category-nav');
+if (categoryNav) {
+  const links = [...categoryNav.querySelectorAll('a[href^="#"]')];
+  const setActive = (hash) => {
+    const target = hash || links[0]?.getAttribute('href');
+    categoryNav.classList.add('has-active');
+    for (const link of links) {
+      link.classList.toggle('is-active', link.getAttribute('href') === target);
+    }
+  };
+  setActive(location.hash);
+  for (const link of links) {
+    link.addEventListener('click', () => setActive(link.getAttribute('href')));
+  }
+  window.addEventListener('hashchange', () => setActive(location.hash));
+}

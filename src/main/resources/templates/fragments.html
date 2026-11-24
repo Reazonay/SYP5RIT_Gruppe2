@@ -2,7 +2,8 @@
 <html lang="de" xmlns:th="http://www.thymeleaf.org">
  <head th:fragment="head(title)">
   <meta charset="utf-8"/>
-  <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+  <meta content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content" name="viewport"/>
+  <meta content="#f8f8f9" name="theme-color"/>
   <meta content="no-referrer" name="referrer"/>
   <meta name="_csrf" th:content="${_csrf.token}"/>
   <meta name="_csrf_parameter" th:content="${_csrf.parameterName}"/>
@@ -33,16 +34,6 @@
       </span>
      </span>
     </a>
-    <div class="header-actions">
-     <a aria-label="Gruppe" class="icon-button" href="/group" title="Gruppenverwaltung">
-      <svg th:replace="~{fragments :: icon('group')}">
-      </svg>
-     </a>
-     <a aria-label="Personalzugang" class="profile-button" href="/staff">
-      <svg th:replace="~{fragments :: icon('person')}">
-      </svg>
-     </a>
-    </div>
     <nav aria-label="Hauptnavigation" class="main-nav">
      <a href="/" th:attr="aria-current=${pagePath == '/' ? 'page' : null}" th:classappend="${pagePath == '/' ? 'active' : ''}">
       <svg th:replace="~{fragments :: icon('calendar')}">
@@ -73,6 +64,16 @@
       </span>
      </a>
     </nav>
+    <div class="header-actions">
+     <a aria-label="Gruppe" class="icon-button" href="/group" title="Gruppenverwaltung">
+      <svg th:replace="~{fragments :: icon('group')}">
+      </svg>
+     </a>
+     <a aria-label="Personalzugang" class="profile-button" href="/staff" title="Personalzugang">
+      <svg th:replace="~{fragments :: icon('person')}">
+      </svg>
+     </a>
+    </div>
    </div>
   </header>
   <div class="messages" th:fragment="messages">
