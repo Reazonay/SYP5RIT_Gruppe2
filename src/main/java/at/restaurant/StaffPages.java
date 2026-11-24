@@ -69,6 +69,17 @@ public class StaffPages {
     return "redirect:/staff/login";
   }
 
+  @PostMapping("/switch")
+  String switchRole(
+      @RequestParam String role, HttpServletRequest request, HttpServletResponse response) {
+    if (settings.production()) return "redirect:/staff/login";
+    String session = auth.switchToRole(role);
+    SessionSecurity.rotate(request, response);
+    response.addHeader(HttpHeaders.SET_COOKIE, cookie(session, Duration.ofHours(8)).toString());
+    return "redirect:/staff/"
+        + ("cook".equals(role) ? "kitchen" : "manager".equals(role) ? "manage" : "seats");
+  }
+
   private ResponseCookie cookie(String value, Duration duration) {
     return ResponseCookie.from("session", value)
         .path("/")

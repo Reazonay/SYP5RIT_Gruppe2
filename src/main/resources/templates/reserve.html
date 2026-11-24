@@ -8,53 +8,131 @@
   <main class="reserve-page">
    <div th:replace="~{fragments :: messages}">
    </div>
-   <div class="page-intro">
-    <div class="intro-line">
-     <span class="status positive">
-      Reservierung mit QR-Code
-     </span>
-     <span class="muted">
-      Direkt bei Tavola
-     </span>
-    </div>
-    <h1>
-     Platz reservieren
-    </h1>
-    <p>
-     Ein guter Abend beginnt mit einem Platz am Tisch.
-    </p>
-   </div>
-   <figure class="restaurant-image">
-    <img alt="Warmer Gastraum mit gedeckten Tischen" src="/assets/restaurant.jpg"/>
-    <figcaption>
-     <svg th:replace="~{fragments :: icon('table')}">
-     </svg>
-     Zeit für gutes Essen und gute Gesellschaft
-    </figcaption>
-   </figure>
    <form action="/" id="party-form" method="get">
    </form>
-   <form class="reservation-grid" method="post" th:action="@{/reserve}" th:object="${reservationForm}">
-    <div class="booking-fields">
+   <div class="widget-shell">
+    <aside class="widget-venue">
+     <div class="venue-visual">
+      <img alt="Warmer Gastraum mit gedeckten Tischen" src="/assets/restaurant.jpg"/>
+      <div class="venue-overlay">
+       <span class="venue-hours">
+        <svg th:replace="~{fragments :: icon('clock')}">
+        </svg>
+        Täglich 11:30 – 23:00
+       </span>
+       <div class="venue-title-block">
+        <h1>
+         Platz reservieren
+        </h1>
+        <p>
+         Wählen Sie Personen, Wunschzeit und Tischdauer — direkt auf Smartphone oder Desktop.
+        </p>
+       </div>
+      </div>
+     </div>
+     <div class="ticket-preview">
+      <div class="ticket-head">
+       <span>
+        Ihre Auswahl
+       </span>
+       <span class="ticket-badge">
+        Sofortbestätigung + QR
+       </span>
+      </div>
+      <div class="summary-detail">
+       <svg th:replace="~{fragments :: icon('calendar')}">
+       </svg>
+       <div>
+        <strong data-booking-preview="">
+         Datum und Uhrzeit auswählen
+        </strong>
+        <p>
+         <span data-people-preview="" th:text="${reservationForm.people.size() + (reservationForm.people.size() == 1 ? ' Person' : ' Personen')}">
+         </span>
+         ·
+         <span data-duration-preview="">
+          60 Minuten
+         </span>
+        </p>
+       </div>
+      </div>
+      <p class="help-text">
+       Jede Person erhält einen eigenen QR-Pass für Check-in, Vorbestellung und getrennte Rechnung.
+      </p>
+      <details class="rules-accordion">
+       <summary>
+        Storno- und Gebührenregeln
+       </summary>
+       <p>
+        Bis 60 Minuten vor Beginn kostenfrei. Danach Einzelstorno 10 €, Gruppenstorno 20 €, ab 15 Minuten vorher 75 % der Vorbestellung. Nichterscheinen nach 15 Minuten: 10 € pro Person.
+       </p>
+      </details>
+      <a class="menu-peek-link" href="/menu">
+       <svg th:replace="~{fragments :: icon('book')}">
+       </svg>
+       <span>
+        Speise- und Getränkekarte entdecken
+       </span>
+       <svg th:replace="~{fragments :: icon('arrow')}">
+       </svg>
+      </a>
+     </div>
+    </aside>
+    <form class="widget-form" method="post" th:action="@{/reserve}" th:object="${reservationForm}">
      <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}">
       Bitte die markierten Eingaben prüfen.
      </p>
-     <section class="panel">
-      <div class="section-heading">
+     <section class="widget-card">
+      <div class="widget-step-head">
        <h2>
-        <svg th:replace="~{fragments :: icon('settings')}">
-        </svg>
-        Eckdaten
+        Gäste &amp; Wunschzeit
        </h2>
-       <span>
-        Schritt 1 von 2
-       </span>
       </div>
-      <label>
-       Beginn
-       <input data-booking-date="" required="" th:field="*{startsAt}" type="datetime-local"/>
-      </label>
-      <div class="row">
+      <div class="party-picker">
+       <span class="field-caption">
+        Gästeanzahl schnell wählen
+       </span>
+       <div class="chip-row" role="group" aria-label="Schnellauswahl Gäste">
+        <button class="chip" form="party-form" name="people" th:classappend="${reservationForm.people.size() == n ? 'is-selected' : ''}" th:each="n : ${ {1,2,3,4,5,6} }" th:text="${n}" th:value="${n}" type="submit">
+        </button>
+       </div>
+       <div class="party-custom">
+        <label>
+         Personen
+         <input form="party-form" max="10" min="1" name="people" th:value="${reservationForm.people.size()}" type="number"/>
+        </label>
+        <button class="compact" form="party-form">
+         Anzahl übernehmen
+        </button>
+       </div>
+      </div>
+      <div class="time-picker-block">
+       <label>
+        Beginn
+        <input data-booking-date="" required="" th:field="*{startsAt}" type="datetime-local"/>
+       </label>
+       <div class="slot-strip" data-time-slots="" hidden="">
+        <button class="slot-chip" data-slot="12:00" type="button">
+         12:00
+        </button>
+        <button class="slot-chip" data-slot="13:00" type="button">
+         13:00
+        </button>
+        <button class="slot-chip" data-slot="17:30" type="button">
+         17:30
+        </button>
+        <button class="slot-chip" data-slot="18:30" type="button">
+         18:30
+        </button>
+        <button class="slot-chip" data-slot="19:00" type="button">
+         19:00
+        </button>
+        <button class="slot-chip" data-slot="20:00" type="button">
+         20:00
+        </button>
+       </div>
+      </div>
+      <div class="duration-block">
        <label>
         Dauer
         <select data-booking-duration="" th:field="*{duration}">
@@ -62,26 +140,27 @@
          </option>
         </select>
        </label>
-       <label>
-        Personen
-        <input form="party-form" max="10" min="1" name="people" th:value="${reservationForm.people.size()}" type="number"/>
-       </label>
-      </div>
-      <div class="party-action">
-       <span class="muted">
-        Personenzahl zuerst wählen.
-       </span>
-       <button class="compact" form="party-form">
-        Anzahl übernehmen
-       </button>
+       <div class="chip-row duration-chips" data-duration-chips="" hidden="">
+        <button class="chip" data-minutes="60" type="button">
+         1 Std
+        </button>
+        <button class="chip" data-minutes="90" type="button">
+         1,5 Std
+        </button>
+        <button class="chip" data-minutes="120" type="button">
+         2 Std
+        </button>
+        <button class="chip" data-minutes="180" type="button">
+         3 Std
+        </button>
+       </div>
       </div>
      </section>
-     <section class="panel guest-fields" th:each="person,i : *{people}">
-      <div class="section-heading">
+     <section class="widget-card guest-fields" th:each="person,i : *{people}">
+      <div class="widget-step-head">
        <h2 th:text="${i.index == 0 ? 'Ihre Kontaktdaten' : 'Gast ' + (i.index + 1)}">
        </h2>
-       <span th:if="${i.index == 0}">
-        Schritt 2 von 2
+       <span class="guest-tag" th:text="${'Platz ' + (i.index + 1)}">
        </span>
       </div>
       <label>
@@ -90,19 +169,21 @@
        <span class="error" th:errors="*{people[__${i.index}__].name}">
        </span>
       </label>
-      <label>
-       E-Mail
-       <input autocomplete="email" maxlength="254" placeholder="name@beispiel.at" required="" th:field="*{people[__${i.index}__].email}" type="email"/>
-       <span class="error" th:errors="*{people[__${i.index}__].email}">
-       </span>
-      </label>
-      <label>
-       Telefon
-       <input autocomplete="tel" maxlength="40" minlength="3" placeholder="+43 …" required="" th:field="*{people[__${i.index}__].phone}" type="tel"/>
-      </label>
+      <div class="row">
+       <label>
+        E-Mail
+        <input autocomplete="email" maxlength="254" placeholder="name@beispiel.at" required="" th:field="*{people[__${i.index}__].email}" type="email"/>
+        <span class="error" th:errors="*{people[__${i.index}__].email}">
+        </span>
+       </label>
+       <label>
+        Telefon
+        <input autocomplete="tel" maxlength="40" minlength="3" placeholder="+43 …" required="" th:field="*{people[__${i.index}__].phone}" type="tel"/>
+       </label>
+      </div>
       <label>
        Zahlungsart
-       <select th:field="*{people[__${i.index}__].method}">
+       <select data-payment-select="" th:field="*{people[__${i.index}__].method}">
         <option value="cash">
          Bar
         </option>
@@ -115,61 +196,17 @@
        </select>
       </label>
      </section>
-    </div>
-    <aside class="panel booking-summary">
-     <div class="section-heading">
-      <h2>
+     <div class="widget-submit-bar">
+      <button class="primary wide">
        <svg th:replace="~{fragments :: icon('check')}">
        </svg>
-       Zusammenfassung
-      </h2>
-     </div>
-     <div class="summary-detail">
-      <svg th:replace="~{fragments :: icon('calendar')}">
-      </svg>
-      <div>
-       <strong data-booking-preview="">
-        Datum und Uhrzeit auswählen
-       </strong>
-       <p>
-        <span th:text="${reservationForm.people.size() + (reservationForm.people.size() == 1 ? ' Person' : ' Personen')}">
-        </span>
-        ·
-        <span data-duration-preview="">
-         60 Minuten
-        </span>
-       </p>
-      </div>
-     </div>
-     <p class="help-text">
-      Jede Person erhält einen eigenen Reservierungslink per E-Mail. Check-in: 30 Minuten vor bis 15 Minuten nach Beginn.
-     </p>
-     <details>
-      <summary>
-       Storno- und Gebührenregeln
-      </summary>
-      <p>
-       Ab 60 Minuten vorher kostenlos. Einzelstorno danach 10 €. Gruppen-Gesamtstorno danach 20 €. Teilstorno danach 10 € pro Person, ab 15 Minuten vorher 75 % der persönlichen Vorbestellsumme. Nichterscheinen nach 15 Minuten: 10 € pro Person.
+       Verbindlich reservieren
+      </button>
+      <p class="fine-print">
+       Die gewählte Zahlungsart kann beim Bezahlen jederzeit geändert werden.
       </p>
-     </details>
-     <button class="primary wide">
-      <svg th:replace="~{fragments :: icon('utensils')}">
-      </svg>
-      Verbindlich reservieren
-     </button>
-     <p class="fine-print">
-      Ihre Zahlungsart können Sie beim Bezahlen ändern.
-     </p>
-    </aside>
-   </form>
-   <div class="menu-preview">
-    <a class="text-link" href="/menu">
-     <svg th:replace="~{fragments :: icon('book')}">
-     </svg>
-     Vorab einen Blick in die Speisekarte werfen
-     <svg th:replace="~{fragments :: icon('arrow')}">
-     </svg>
-    </a>
+     </div>
+    </form>
    </div>
   </main>
   <footer th:replace="~{fragments :: footer}">

@@ -8,27 +8,37 @@
   <main class="menu-page">
    <div th:replace="~{fragments :: messages}">
    </div>
-   <div class="page-intro">
-    <h1>
-     Speise- und Getränkekarte
-    </h1>
-    <p th:if="${visit != null &amp;&amp; ordering}">
-     <svg th:replace="~{fragments :: icon('table')}">
-     </svg>
-     <span th:text="${visit.seat_label}">
+   <div class="menu-hero">
+    <div>
+     <span class="workspace-kicker">
+      GourmetGrove Auswahl
      </span>
-     · Für Ihren Besuch bestellen
-    </p>
-    <p th:unless="${ordering}">
-     Entdecken Sie unsere Speisen und Getränke.
-    </p>
+     <h1>
+      Speise- und Getränkekarte
+     </h1>
+     <p th:if="${visit != null &amp;&amp; ordering}">
+      <svg th:replace="~{fragments :: icon('table')}">
+      </svg>
+      <span th:text="${visit.seat_label}">
+      </span>
+      · Direkt auf Ihren Tisch bestellen
+     </p>
+     <p th:unless="${ordering}">
+      Frisch zubereitete Küche und ausgewählte Getränke vor Ort.
+     </p>
+    </div>
+    <a class="button primary" href="/" th:unless="${ordering}">
+     <svg th:replace="~{fragments :: icon('calendar')}">
+     </svg>
+     Tisch reservieren
+    </a>
    </div>
    <section th:replace="~{fragments :: menu(${ordering},'/visit')}">
    </section>
    <div class="menu-summary" th:if="${visit != null}">
     <div>
      <span>
-      Ihre Bestellungen
+      Aktuelle Tischbestellung
      </span>
      <strong th:text="${@format.money(visit.subtotal)}">
      </strong>
@@ -40,7 +50,7 @@
     </a>
    </div>
    <p class="help-text" th:unless="${ordering}">
-    Zum Bestellen öffnen Sie Ihren Reservierungslink oder reservieren Sie einen Platz.
+    Zum Vor- oder Nachbestellen öffnen Sie Ihren persönlichen Reservierungslink unter „Mein Besuch“.
    </p>
   </main>
   <footer th:replace="~{fragments :: footer}">

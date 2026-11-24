@@ -38,7 +38,7 @@ class SecurityConfig {
         .sessionManagement(session -> session.requireExplicitAuthenticationStrategy(true));
     http.authorizeHttpRequests(
         r ->
-            r.requestMatchers("/staff/login")
+            r.requestMatchers("/staff/login", "/staff/switch")
                 .permitAll()
                 .requestMatchers("/api/staff/**", "/staff", "/staff/**")
                 .authenticated()
@@ -59,7 +59,8 @@ class SecurityConfig {
             h.contentSecurityPolicy(
                     c ->
                         c.policyDirectives(
-                            "default-src 'self'; img-src 'self' data:; style-src 'self'; object-src 'none'; frame-ancestors 'none'"))
+                            "default-src 'self'; img-src 'self' data:; style-src 'self'; object-src"
+                                + " 'none'; frame-ancestors 'none'"))
                 .referrerPolicy(
                     r ->
                         r.policy(

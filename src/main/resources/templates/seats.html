@@ -5,68 +5,113 @@
  <body>
   <header th:replace="~{fragments :: header}">
   </header>
-  <main class="staff-page">
+  <main class="staff-page dashboard-shell">
    <nav th:replace="~{fragments :: staffNav}">
    </nav>
    <div th:replace="~{fragments :: messages}">
    </div>
-   <div class="staff-intro">
-    <span>
-     Service &amp; Empfang
-    </span>
-    <span>
-     Tavola
-    </span>
-   </div>
-   <h1>
-    Platzübersicht
-   </h1>
-   <form action="/staff/seats" class="panel seat-filter" method="get">
-    <label>
-     Zeitpunkt
-     <input name="at" required="" th:value="${at}" type="datetime-local"/>
-    </label>
-    <button class="primary">
-     Belegung anzeigen
-    </button>
-   </form>
-   <div class="seat-legend">
-    <span class="status positive" th:text="${'Frei · ' + seatCounts.free}">
-    </span>
-    <span class="status warning" th:text="${'Reserviert · ' + seatCounts.reserved}">
-    </span>
-    <span class="status neutral" th:text="${'Belegt · ' + seatCounts.occupied}">
-    </span>
-   </div>
-   <div class="seats">
-    <div class="seat" th:classappend="${seat.active ? seat.status : 'inactive'}" th:each="seat : ${seats}">
-     <strong th:text="${seat.label}">
-     </strong>
-     <span th:text="${seat.table_name}">
+   <div class="dashboard-header">
+    <div>
+     <span class="workspace-kicker">
+      Service &amp; Empfang
      </span>
-     <span th:text="${seat.active ? @format.status(seat.status) : 'Deaktiviert'}">
+     <h1>
+      Platzübersicht
+     </h1>
+    </div>
+    <form action="/staff/seats" class="seat-filter" method="get">
+     <label>
+      Zeitpunkt
+      <input name="at" required="" th:value="${at}" type="datetime-local"/>
+     </label>
+     <button class="primary">
+      Belegung anzeigen
+     </button>
+    </form>
+   </div>
+   <div class="kpi-grid">
+    <div class="kpi-card positive">
+     <span class="kpi-label">
+      Verfügbare Plätze
+     </span>
+     <strong class="kpi-value" th:text="${seatCounts.free}">
+     </strong>
+     <span class="status positive" th:text="${'Frei · ' + seatCounts.free}">
+     </span>
+    </div>
+    <div class="kpi-card warning">
+     <span class="kpi-label">
+      Geplante Ankünfte
+     </span>
+     <strong class="kpi-value" th:text="${seatCounts.reserved}">
+     </strong>
+     <span class="status warning" th:text="${'Reserviert · ' + seatCounts.reserved}">
+     </span>
+    </div>
+    <div class="kpi-card occupied">
+     <span class="kpi-label">
+      Aktive Gäste vor Ort
+     </span>
+     <strong class="kpi-value" th:text="${seatCounts.occupied}">
+     </strong>
+     <span class="status neutral" th:text="${'Belegt · ' + seatCounts.occupied}">
      </span>
     </div>
    </div>
-   <h2>
-    Besuche
-   </h2>
-   <ul class="visits">
-    <li th:each="visit : ${visits}">
-     <strong th:text="${visit.name}">
-     </strong>
-     <span th:text="${' · ' + @format.date(visit.starts_at) + ' · ' + visit.label + ' · ' + @format.status(visit.status)}">
-     </span>
-     <strong class="error" th:if="${visit.overdue}">
-      · Seit über zwei Stunden aktiv
-     </strong>
-     <form data-confirm="Besuch beenden? Offene Forderungen bleiben bestehen." method="post" th:action="@{/staff/visits/{id}/finish(id=${visit.id})}" th:if="${visit.status == 'checked_in'}">
-      <button>
-       Besuch beenden
-      </button>
-     </form>
-    </li>
-   </ul>
+   <section class="dashboard-panel">
+    <div class="panel-bar">
+     <h2>
+      Saalbelegung
+     </h2>
+     <a class="button compact" href="/staff/visit">
+      <svg th:replace="~{fragments :: icon('qr')}">
+      </svg>
+      QR Check-in öffnen
+     </a>
+    </div>
+    <div class="seats">
+     <div class="seat" th:classappend="${seat.active ? seat.status : 'inactive'}" th:each="seat : ${seats}">
+      <div class="seat-top">
+       <strong th:text="${seat.label}">
+       </strong>
+       <span class="seat-dot">
+       </span>
+      </div>
+      <span class="seat-table" th:text="${seat.table_name}">
+      </span>
+      <span class="seat-state" th:text="${seat.active ? @format.status(seat.status) : 'Deaktiviert'}">
+      </span>
+     </div>
+    </div>
+   </section>
+   <section class="dashboard-panel">
+    <div class="panel-bar">
+     <h2>
+      Besuche
+     </h2>
+    </div>
+    <ul class="visits">
+     <li th:each="visit : ${visits}">
+      <strong>
+       <span th:text="${visit.name}">
+       </span>
+      </strong>
+      <span th:text="${' · ' + @format.date(visit.starts_at) + ' · ' + visit.label + ' · ' + @format.status(visit.status)}">
+      </span>
+      <strong class="error" th:if="${visit.overdue}">
+       · Seit über zwei Stunden aktiv
+      </strong>
+      <form data-confirm="Besuch beenden? Offene Forderungen bleiben bestehen." method="post" th:action="@{/staff/visits/{id}/finish(id=${visit.id})}" th:if="${visit.status == 'checked_in'}">
+       <button>
+        Besuch beenden
+       </button>
+      </form>
+     </li>
+    </ul>
+    <p class="empty-state" th:if="${visits.isEmpty()}">
+     Aktuell sind keine offenen oder heutigen Besuche vermerkt.
+    </p>
+   </section>
   </main>
   <footer th:replace="~{fragments :: footer}">
   </footer>

@@ -5,15 +5,20 @@
  <body>
   <header th:replace="~{fragments :: header}">
   </header>
-  <main class="staff-page">
+  <main class="staff-page dashboard-shell">
    <nav th:replace="~{fragments :: staffNav}">
    </nav>
    <div th:replace="~{fragments :: messages}">
    </div>
-   <div class="staff-toolbar">
-    <h1>
-     Offene Bestellungen
-    </h1>
+   <div class="dashboard-header">
+    <div>
+     <span class="workspace-kicker">
+      Küchen-Monitor · Live-Bonierung
+     </span>
+     <h1>
+      Offene Bestellungen
+     </h1>
+    </div>
     <a class="button compact" href="/staff/kitchen">
      <svg th:replace="~{fragments :: icon('refresh')}">
      </svg>
@@ -21,17 +26,23 @@
     </a>
    </div>
    <p class="empty-state" th:if="${orders.isEmpty()}">
-    Keine offenen Bestellungen.
+    Keine offenen Bestellungen. Alle Bons sind abgearbeitet.
    </p>
-   <ul class="kitchen">
-    <li th:each="order : ${orders}">
+   <ul class="kitchen" th:unless="${orders.isEmpty()}">
+    <li class="kds-ticket" th:classappend="${'stage-' + order.status}" th:each="order : ${orders}">
+     <div class="kds-head">
+      <span class="kds-seat" th:text="${order.label}">
+      </span>
+      <span class="status" th:classappend="${order.status == 'ready' ? 'positive' : 'warning'}" th:text="${@format.status(order.status)}">
+      </span>
+     </div>
      <h2 th:text="${order.quantity + ' × ' + order.name}">
      </h2>
      <p th:text="${order.guest + ' · ' + order.label + ' · ' + @format.date(order.starts_at) + ' · ' + @format.status(order.status)}">
      </p>
      <form method="post" th:action="@{/staff/kitchen/orders/{id}(id=${order.id})}" th:if="${staff.role == 'manager' || (staff.role == 'cook' &amp;&amp; order.status != 'ready') || (staff.role == 'waiter' &amp;&amp; order.status == 'ready')}">
       <input name="status" th:value="${order.status == 'open' ? 'preparing' : order.status == 'preparing' ? 'ready' : 'served'}" type="hidden"/>
-      <button th:text="${order.status == 'open' ? 'Zubereitung beginnen' : order.status == 'preparing' ? 'Bereit melden' : 'Serviert bestätigen'}">
+      <button class="primary" th:text="${order.status == 'open' ? 'Zubereitung beginnen' : order.status == 'preparing' ? 'Bereit melden' : 'Serviert bestätigen'}">
       </button>
      </form>
     </li>

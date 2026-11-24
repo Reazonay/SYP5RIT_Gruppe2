@@ -3,7 +3,7 @@
  <head th:fragment="head(title)">
   <meta charset="utf-8"/>
   <meta content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content" name="viewport"/>
-  <meta content="#f8f8f9" name="theme-color"/>
+  <meta content="#1b3b2b" name="theme-color"/>
   <meta content="no-referrer" name="referrer"/>
   <meta name="_csrf" th:content="${_csrf.token}"/>
   <meta name="_csrf_parameter" th:content="${_csrf.parameterName}"/>
@@ -16,63 +16,107 @@
   <meta http-equiv="refresh" th:content="${refreshSeconds}" th:if="${refreshSeconds != null}"/>
  </head>
  <body>
-  <svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" th:fragment="icon(name)" viewbox="0 0 24 24">
+  <svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" th:fragment="icon(name)" viewbox="0 0 24 24">
    <use th:href="@{'/assets/icons.svg#' + ${name}}">
    </use>
   </svg>
   <header class="app-header" th:fragment="header">
-   <div class="header-inner">
-    <a aria-label="Tavola Startseite" class="brand" href="/">
-     <span class="brand-mark">
-      <svg th:replace="~{fragments :: icon('utensils')}">
-      </svg>
-     </span>
-     <span>
-      Tavola
-      <span class="brand-caption">
-       Gastronomie
+   <div class="role-taskbar">
+    <div class="taskbar-inner">
+     <a aria-label="Tavola Startseite" class="brand" href="/">
+      <span class="brand-mark">
+       <svg th:replace="~{fragments :: icon('utensils')}">
+       </svg>
       </span>
-     </span>
-    </a>
-    <nav aria-label="Hauptnavigation" class="main-nav">
-     <a href="/" th:attr="aria-current=${pagePath == '/' ? 'page' : null}" th:classappend="${pagePath == '/' ? 'active' : ''}">
-      <svg th:replace="~{fragments :: icon('calendar')}">
-      </svg>
-      <span>
-       Reservieren
+      <span class="brand-text">
+       Tavola
+       <span class="brand-caption">
+        Dining &amp; Table Suite
+       </span>
       </span>
      </a>
-     <a href="/visit" th:attr="aria-current=${pagePath == '/visit' ? 'page' : null}" th:classappend="${pagePath == '/visit' || pagePath == '/group' ? 'active' : ''}">
-      <svg th:replace="~{fragments :: icon('ticket')}">
-      </svg>
-      <span>
-       Mein Besuch
-      </span>
-     </a>
-     <a href="/menu" th:attr="aria-current=${pagePath == '/menu' ? 'page' : null}" th:classappend="${pagePath == '/menu' ? 'active' : ''}">
-      <svg th:replace="~{fragments :: icon('book')}">
-      </svg>
-      <span>
-       Speisekarte
-      </span>
-     </a>
-     <a href="/staff" th:attr="aria-current=${pagePath != null &amp;&amp; pagePath.startsWith('/staff') ? 'page' : null}" th:classappend="${pagePath != null &amp;&amp; pagePath.startsWith('/staff') ? 'active' : ''}">
-      <svg th:replace="~{fragments :: icon('person')}">
-      </svg>
-      <span>
-       Personal
-      </span>
-     </a>
-    </nav>
-    <div class="header-actions">
-     <a aria-label="Gruppe" class="icon-button" href="/group" title="Gruppenverwaltung">
-      <svg th:replace="~{fragments :: icon('group')}">
-      </svg>
-     </a>
-     <a aria-label="Personalzugang" class="profile-button" href="/staff" title="Personalzugang">
-      <svg th:replace="~{fragments :: icon('person')}">
-      </svg>
-     </a>
+     <div aria-label="Rollenauswahl" class="role-switcher" th:if="${roleSwitchEnabled == null || roleSwitchEnabled}">
+      <a class="role-pill" href="/" th:attr="aria-current=${activeWorkspace == 'widget' || activeWorkspace == null ? 'true' : null}" th:classappend="${activeWorkspace == 'widget' || activeWorkspace == null ? 'is-active' : ''}">
+       <svg th:replace="~{fragments :: icon('calendar')}">
+       </svg>
+       <span>
+        Widget
+       </span>
+      </a>
+      <form method="post" th:action="@{/staff/switch}">
+       <input name="role" type="hidden" value="cook"/>
+       <button class="role-pill" th:attr="aria-pressed=${activeWorkspace == 'cook' ? 'true' : 'false'}" th:classappend="${activeWorkspace == 'cook' ? 'is-active' : ''}" type="submit">
+        <svg th:replace="~{fragments :: icon('kitchen')}">
+        </svg>
+        <span>
+         Koch
+        </span>
+       </button>
+      </form>
+      <form method="post" th:action="@{/staff/switch}">
+       <input name="role" type="hidden" value="waiter"/>
+       <button class="role-pill" th:attr="aria-pressed=${activeWorkspace == 'waiter' ? 'true' : 'false'}" th:classappend="${activeWorkspace == 'waiter' ? 'is-active' : ''}" type="submit">
+        <svg th:replace="~{fragments :: icon('table')}">
+        </svg>
+        <span>
+         Kellner
+        </span>
+       </button>
+      </form>
+      <form method="post" th:action="@{/staff/switch}">
+       <input name="role" type="hidden" value="manager"/>
+       <button class="role-pill" th:attr="aria-pressed=${activeWorkspace == 'manager' ? 'true' : 'false'}" th:classappend="${activeWorkspace == 'manager' ? 'is-active' : ''}" type="submit">
+        <svg th:replace="~{fragments :: icon('settings')}">
+        </svg>
+        <span>
+         Administration
+        </span>
+       </button>
+      </form>
+     </div>
+    </div>
+   </div>
+   <div class="nav-bar">
+    <div class="header-inner">
+     <nav aria-label="Hauptnavigation" class="main-nav">
+      <a href="/" th:attr="aria-current=${pagePath == '/' ? 'page' : null}" th:classappend="${pagePath == '/' ? 'active' : ''}">
+       <svg th:replace="~{fragments :: icon('calendar')}">
+       </svg>
+       <span>
+        Reservieren
+       </span>
+      </a>
+      <a href="/visit" th:attr="aria-current=${pagePath == '/visit' ? 'page' : null}" th:classappend="${pagePath == '/visit' || pagePath == '/group' ? 'active' : ''}">
+       <svg th:replace="~{fragments :: icon('ticket')}">
+       </svg>
+       <span>
+        Mein Besuch
+       </span>
+      </a>
+      <a href="/menu" th:attr="aria-current=${pagePath == '/menu' ? 'page' : null}" th:classappend="${pagePath == '/menu' ? 'active' : ''}">
+       <svg th:replace="~{fragments :: icon('book')}">
+       </svg>
+       <span>
+        Speisekarte
+       </span>
+      </a>
+      <a href="/staff" th:attr="aria-current=${pagePath != null &amp;&amp; pagePath.startsWith('/staff') ? 'page' : null}" th:classappend="${pagePath != null &amp;&amp; pagePath.startsWith('/staff') ? 'active' : ''}">
+       <svg th:replace="~{fragments :: icon('person')}">
+       </svg>
+       <span>
+        Personal
+       </span>
+      </a>
+     </nav>
+     <div class="header-actions" th:if="${pagePath == null || !pagePath.startsWith('/staff')}">
+      <a aria-label="Gruppe" class="icon-button" href="/group" title="Gruppenverwaltung">
+       <svg th:replace="~{fragments :: icon('group')}">
+       </svg>
+       <span class="action-label">
+        Gruppe
+       </span>
+      </a>
+     </div>
     </div>
    </div>
   </header>
@@ -105,16 +149,18 @@
    </a>
    <form method="post" th:action="@{/staff/logout}">
     <button class="quiet">
+     <svg th:replace="~{fragments :: icon('logout')}">
+     </svg>
      Abmelden
     </button>
    </form>
   </nav>
   <footer class="app-footer" th:fragment="footer">
    <span>
-    Tavola Gastronomie
+    Tavola Dining Suite
    </span>
    <span>
-    Zeiten in Europe/Vienna · Zahlungen im Testbetrieb
+    Europe/Vienna · Testbetrieb
    </span>
   </footer>
   <section class="menu-section" th:fragment="menu(ordering,base)">
@@ -134,25 +180,39 @@
     </h3>
     <ul class="menu">
      <li class="dish" th:classappend="${!item.available ? 'unavailable' : ''}" th:each="item : ${menu}" th:if="${item.category == category}">
-      <div class="dish-heading">
-       <strong th:text="${item.name}">
-       </strong>
-       <span class="price" th:text="${@format.money(item.price)}">
+      <div class="dish-top">
+       <span class="dish-tag" th:text="${category == 'food' ? 'Küche' : 'Getränk'}">
        </span>
-      </div>
-      <div class="dish-actions">
        <span class="status" th:classappend="${item.available ? 'positive' : 'neutral'}">
         <svg th:replace="~{fragments :: icon('check')}">
         </svg>
         <span th:text="${item.available ? 'Verfügbar' : 'Nicht verfügbar'}">
         </span>
        </span>
-       <form class="inline order-form" method="post" th:action="@{${base + '/order'}}" th:if="${ordering}">
+      </div>
+      <div class="dish-heading">
+       <strong th:text="${item.name}">
+       </strong>
+       <span class="price" th:text="${@format.money(item.price)}">
+       </span>
+      </div>
+      <div class="dish-actions" th:if="${ordering}">
+       <form class="inline order-form" method="post" th:action="@{${base + '/order'}}">
         <input name="menuId" th:value="${item.id}" type="hidden"/>
-        <label class="quantity">
-         Menge
-         <input max="99" min="1" name="quantity" required="" type="number" value="1"/>
-        </label>
+        <div class="qty-control">
+         <button aria-label="Menge verringern" class="qty-step" data-qty-delta="-1" tabindex="-1" th:disabled="${!item.available}" type="button">
+          −
+         </button>
+         <label class="quantity">
+          <span class="sr-only">
+           Menge
+          </span>
+          <input max="99" min="1" name="quantity" required="" th:disabled="${!item.available}" type="number" value="1"/>
+         </label>
+         <button aria-label="Menge erhöhen" class="qty-step" data-qty-delta="1" tabindex="-1" th:disabled="${!item.available}" type="button">
+          +
+         </button>
+        </div>
         <button class="primary" th:disabled="${!item.available}">
          Bestellen
         </button>

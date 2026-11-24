@@ -42,7 +42,8 @@ public class AuthService {
 
   public Optional<Staff> authenticate(String session) {
     return db.optional(
-            "SELECT s.id,s.email,s.role FROM sessions x JOIN staff s ON s.id=x.staff_id WHERE x.token_hash=? AND x.expires_at>?",
+            "SELECT s.id,s.email,s.role FROM sessions x JOIN staff s ON s.id=x.staff_id WHERE"
+                + " x.token_hash=? AND x.expires_at>?",
             Tokens.hash(session),
             clock.instant())
         .map(p -> new Staff(Db.id(p), (String) p.get("email"), (String) p.get("role")));
@@ -50,5 +51,30 @@ public class AuthService {
 
   public void logout(String session) {
     db.update("DELETE FROM sessions WHERE token_hash=?", Tokens.hash(session));
+  }
+
+  public String switchToRole(String role) {
+    if (!List.of("cook", "waiter", "manager").contains(role))
+      throw new ApiException(400, "Ungültige Rolle");
+    var user = db.optional("SELECT id FROM staff WHERE role=? ORDER BY email LIMIT 1", role);
+    UUID id;
+    if (user.isPresent()) {
+      id = Db.id(user.get());
+    } else {
+      db.update(
+          "INSERT INTO staff VALUES(?,?,?,?) ON CONFLICT(email) DO NOTHING",
+          UUID.randomUUID(),
+          role + "@restaurant.test",
+          dummy,
+          role);
+      id = Db.id(db.one("SELECT id FROM staff WHERE email=?", role + "@restaurant.test"));
+    }
+    String session = Tokens.create();
+    db.update(
+        "INSERT INTO sessions VALUES(?,?,?)",
+        Tokens.hash(session),
+        id,
+        clock.instant().plus(Duration.ofHours(8)));
+    return session;
   }
 }

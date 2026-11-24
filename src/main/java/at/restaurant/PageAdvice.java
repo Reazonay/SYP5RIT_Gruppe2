@@ -7,6 +7,12 @@ import org.springframework.web.bind.annotation.*;
 
 @ControllerAdvice(assignableTypes = {GuestPages.class, StaffPages.class})
 public class PageAdvice {
+  private final AppSettings settings;
+
+  public PageAdvice(AppSettings settings) {
+    this.settings = settings;
+  }
+
   @ModelAttribute("pagePath")
   public String pagePath(HttpServletRequest request) {
     return request.getRequestURI();
@@ -16,6 +22,20 @@ public class PageAdvice {
   public AuthService.Staff staff() {
     var auth = SecurityContextHolder.getContext().getAuthentication();
     return auth != null && auth.getPrincipal() instanceof AuthService.Staff staff ? staff : null;
+  }
+
+  @ModelAttribute("roleSwitchEnabled")
+  public boolean roleSwitchEnabled() {
+    return !settings.production();
+  }
+
+  @ModelAttribute("activeWorkspace")
+  public String activeWorkspace(HttpServletRequest request) {
+    String uri = request.getRequestURI();
+    if (uri == null || !uri.startsWith("/staff")) return "widget";
+    var current = staff();
+    if (current != null) return current.role();
+    return "staff";
   }
 
   @ExceptionHandler({
