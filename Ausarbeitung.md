@@ -6,9 +6,6 @@ Requirements Dokument wurde mit den Kriterien aus dem swebok-v4 überprüft.
 
 Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 
-
-**Gesamtbewertung: 5 von 9.** Die Inhalte passen gut zur Angabe, aber einige Aussagen sind noch nicht genau genug, und es fehlen User Stories, nicht-funktionale Anforderungen und eindeutige IDs.
-
 ### Kriterien und Bewertung
 
 #### Kriterien
@@ -29,61 +26,74 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 - Der Gast kann einen oder mehrere Plätze für einen bestimmten Zeitpunkt und eine bestimmte Dauer reservieren.
 
   *5/9 Punkte*
+  - **Was fehlt:** Keine Obergrenze für Plätze/Dauer definiert; Verhalten bei ungültigen Zeitfenstern unklar.
 
 - Das System prüft, ob im gewünschten Zeitraum genug Plätze frei sind.
 
   *6/9 Punkte*
+  - **Was fehlt:** Verhalten bei Überbuchung (Fehlermeldung/Alternativen); konkrete Zuweisungslogik für Plätze fehlt.
 
 - Der Gast gibt Name, Telefonnummer, E-Mail und Zahlungsart (Kreditkarte, PayPal oder Cash) an.
 
   *7/9 Punkte*
+  - **Was fehlt:** Nicht atomar (Daten und Zahlung gemischt); Validierungsregeln (Pflichtfelder, Formate) fehlen.
 
 #### 3.1.2 QR-Code
 - Wenn die Reservierung klappt, erstellt das System einen QR-Code und schickt ihn dem Gast.
 
   *6/9 Punkte*
+  - **Was fehlt:** Übertragungsweg (E-Mail/Download) und technischer Inhalt (Sicherheits-Token statt Klartext) fehlen.
 
 #### 3.1.3 Vorbestellen
 - Der Gast kann mit dem QR-Code Speisen und Getränke vorbestellen.
 
   *5/9 Punkte*
+  - **Was fehlt:** Speisekarten-Requirement fehlt komplett; Frist für Vorbestellungen (bis wann möglich) unklar.
 
 #### 3.1.4 Check-in und Platzzuweisung
 - Die Kellner:in scannt den QR-Code beim Check-in.
 
   *7/9 Punkte*
+  - **Was fehlt:** Fehlerbehandlung bei ungültigen, abgelaufenen oder mehrfach gescannten Codes fehlt.
 
 - Der Gast bekommt seinen reservierten Platz zugewiesen.
 
   *6/9 Punkte*
+  - **Was fehlt:** Unklar, ob Zuweisung manuell oder automatisch erfolgt; Platzübersicht für Personal fehlt.
 
 #### 3.1.5 Servieren
 - Die vorbestellten Speisen und Getränke werden serviert.
 
   *4/9 Punkte*
+  - **Was fehlt:** Kein Software-Requirement (rein physisch); Küchenansicht, Statuswechsel und Bestellausgabe fehlen.
 
 #### 3.1.6 Besuch beenden, Platz freigeben
 - Der Gast kann seinen Besuch selbst beenden (Kontextmenü im QR-Code). Danach ist der Platz wieder frei.
 
   *7/9 Punkte*
+  - **Was fehlt:** Prüfung auf offene Rechnungen/Zahlungen vor der Platzfreigabe fehlt.
 
 - Der Kellner kann den Besuch beenden und den Platz freigeben, wenn sie merkt, dass der Gast gegangen ist.
 
   *7/9 Punkte*
+  - **Was fehlt:** Subjektive Formulierung ("wenn sie merkt"); Kriterien für Systemabschluss fehlen.
 
 #### 3.1.7 Stornieren
 - Der Gast kann seine Reservierung stornieren.
 
   *6/9 Punkte*
+  - **Was fehlt:** Konsequenzen für bereits getätigte Vorbestellungen und QR-Code-Entwertung fehlen.
 
 - Bis 1 Stunde vor dem Termin ist das kostenlos, danach kostet es 10 €.
 
   *7/9 Punkte*
+  - **Was fehlt:** Technische Abwicklung des Einzugs der 10 € (z. B. bei Barzahler) nicht beschrieben.
 
 #### 3.1.8 Verwaltung durch Manager:in
 - Der Manager kann Speisen, Getränke und Plätze im System verwalten.
 
   *4/9 Punkte*
+  - **Was fehlt:** Zu ungenau ("Verwalten" ist nicht atomar); Rollen-/Rechtekonzept und Authentifizierung fehlen.
 
 ### 3.2 Maybe
 
@@ -94,18 +104,21 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 - Beim Beenden des Besuchs kann der Gast online bezahlen oder bar beim Kellner.
 
   *4/9 Punkte (gesamt)*
+  - **Was fehlt:** Nicht atomar (mehrere Zeitpunkte & Methoden); Erfassung von Barzahlungen und Fehlschlag-Handling fehlen.
 
 #### 3.2.2 Feedback 
 
 - Nach dem Besuch kann der Gast online Feedback geben.
 
   *4/9 Punkte*
+  - **Was fehlt:** Bewertungskriterien (Sterne/Freitext?), Einsichtsrechte und zeitliche Frist völlig offen.
 
 #### 3.2.3 Nachbuchung 
 
 - Der Gast kann bis zum Ende des Besuchs noch Speisen und Getränke nachbestellen, z. B. einen Salat oder ein weiteres Getränk.
 
   *6/9 Punkte*
+  - **Was fehlt:** Weiterleitung an die Küche und Handhabung der offenen Gesamtrechnung nicht definiert.
 
 #### 3.2.4 Terminverschiebung 
 
@@ -113,24 +126,28 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 - Sind keine Plätze frei, kann er nur stornieren.
 
   *7/9 Punkte (gesamt)*
+  - **Was fehlt:** Auswirkung auf bereits vorbestellte Speisen/Getränke bei Terminänderung unklar.
 
 #### 3.2.5 Timeout-Warnung
 
 - Wenn ein Besuch nach 2 Stunden nicht beendet ist, wird der Kellner vom System darauf aufmerksam gemacht.
 
   *6/9 Punkte*
+  - **Was fehlt:** Art der Benachrichtigung (Dashboard/Push) und Folgeaktion (Verlängerung/Zwangsfreigabe?) unklar.
 
 #### 3.2.6 Absence-Gebühr 
 
 - Wenn der Gast nicht erscheint (kein Check-in), bekommt er eine Gebühr von 10 € verrechnet.
 
   *5/9 Punkte*
+  - **Was fehlt:** Verspätungstoleranz (ab wie vielen Minuten No-Show?) und Einzug bei gewählter Barzahlung fehlen.
 
 #### 3.2.7 Pufferzeit 
 
 - Zwischen zwei Reservierungen gibt es eine Pufferzeit von 30 Minuten, damit der Platz geräumt und gesäubert werden kann.
 
   *7/9 Punkte*
+  - **Was fehlt:** Konfigurierbarkeit der Dauer und Möglichkeit zur vorzeitigen manuellen Freigabe fehlen.
 
 ### 3.3 Not necessary
 
@@ -141,6 +158,7 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 - Jeder Gast kann mit seinem Code selbst Speisen und Getränke vorbestellen und bezahlen.
 
   *4/9 Punkte (gesamt)*
+  - **Was fehlt:** Widerspricht Scope in 1.2; Einladungsmechanismus und Aufteilung von Gesamtrechnungen unklar.
 
 #### 3.3.2 Gruppen-Gebühren und Teilstorno
 - Wird eine Gruppenreservierung zu spät storniert, kostet das 20 €.
@@ -150,6 +168,7 @@ Die Bewertung erfolgt auf einer Skala von 0 bis 9.
 - In den letzten 15 Minuten und danach fällt eine Gebühr von z. B. 75 % des Preises an.
 
   *3/9 Punkte (gesamt)*
+  - **Was fehlt:** Widersprüchliche Gebühren (Pauschal vs. p. P. vs. %); unpräzise Fristen ("z. B. 30 Min") nicht testbar.
 
 #### Bewertung der übrigen Abschnitte
 
